@@ -54,7 +54,7 @@ export default function Checkout() {
   };
 
   // Sample cart items
-  const [cartItems, setCartItems] = useState<CartItem[]>([
+  const [cartItems] = useState<CartItem[]>([
     {
       id: 1,
       name: "Rose Quartz Cluster",

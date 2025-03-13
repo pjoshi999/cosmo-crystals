@@ -65,7 +65,7 @@ export default function Register() {
     }));
   };
 
-  const nextStep = (e) => {
+  const nextStep = (e: React.FormEvent) => {
     e.preventDefault();
     // Validate first step
     if (!formData.name || !formData.email) {

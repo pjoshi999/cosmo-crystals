@@ -73,7 +73,7 @@ export default function ProfilePage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Mock data - this would come from API in a real app
-  const [user, setUser] = useState<User>({
+  const [user] = useState<User>({
     id: "1",
     name: "Sarah Johnson",
     email: "sarah@example.com",
@@ -81,7 +81,7 @@ export default function ProfilePage() {
     createdAt: new Date("2023-15-09"),
   });
 
-  const [addresses, setAddresses] = useState<Address[]>([
+  const [addresses] = useState<Address[]>([
     {
       id: "1",
       street: "123 Crystal Lane",
@@ -104,7 +104,7 @@ export default function ProfilePage() {
     },
   ]);
 
-  const [orders, setOrders] = useState<Order[]>([
+  const [orders] = useState<Order[]>([
     {
       id: "ord_12345",
       totalAmount: 148.0,
@@ -155,7 +155,7 @@ export default function ProfilePage() {
     },
   ]);
 
-  const [wishlistItems, setWishlistItems] = useState([
+  const [wishlistItems] = useState([
     {
       id: "1",
       name: "Black Tourmaline Bracelet",

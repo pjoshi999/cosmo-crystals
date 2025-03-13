@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Heart, ShoppingCart, Eye } from "lucide-react";
 import { Product } from "@/types";
+import Image from "next/image";
 
 const ProductCard: React.FC<{ product?: Product }> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -83,9 +84,10 @@ const ProductCard: React.FC<{ product?: Product }> = ({ product }) => {
 
       {/* Product Image */}
       <div className="relative h-64 overflow-hidden">
-        <img
+        <Image
           src={mainImage}
           alt={productData.name}
+          fill
           className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
         />
 

@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import { loginService } from "@/lib/features/authSlice";
+import { useAppStore } from "@/hooks/hooks";
 
 export default function Login() {
   const router = useRouter();
+  const store = useAppStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,14 +41,13 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Implement your login logic here
-      // Example: const response = await fetch('/api/auth/login', { method: 'POST', ... })
+      const resultAction = await store.dispatch(
+        loginService({ email, password })
+      );
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect on success
-      router.push("/profile");
+      if (loginService.fulfilled.match(resultAction)) {
+        router.push(`/`);
+      }
     } catch {
       setError("Invalid email or password. Please try again.");
     } finally {
@@ -55,7 +57,7 @@ export default function Login() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-[90vh] bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       initial="initial"
       animate="animate"
       exit="exit"

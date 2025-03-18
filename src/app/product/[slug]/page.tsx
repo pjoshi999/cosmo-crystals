@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { Heart } from "lucide-react";
+import { useProduct } from "@/hooks/queries/useProducts";
 
 // Product type based on your Prisma schema
 interface ProductImage {
@@ -14,81 +15,41 @@ interface ProductImage {
   isMain: boolean;
 }
 
-interface ProductAttribute {
-  name: string;
-  value: string;
-}
+// interface ProductAttribute {
+//   name: string;
+//   value: string;
+// }
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  salePrice: number;
-  stock: number;
-  weight?: number;
-  length?: number;
-  width?: number;
-  height?: number;
-  categoryId: string;
-  subcategory?: string;
-  category: {
-    name: string;
-    slug?: string;
-  };
-  images: ProductImage[];
-  attributes: ProductAttribute[];
-}
+// interface Product {
+//   id: string;
+//   name: string;
+//   description: string;
+//   price: number;
+//   salePrice: number;
+//   stock: number;
+//   weight?: number;
+//   length?: number;
+//   width?: number;
+//   height?: number;
+//   categoryId: string;
+//   subcategory?: string;
+//   category: {
+//     name: string;
+//     slug?: string;
+//   };
+//   images: ProductImage[];
+//   attributes: ProductAttribute[];
+// }
 
-export default function ProductDetail() {
-  // This would be replaced with actual API fetch in production
-  const [product] = useState<Product>({
-    id: "1",
-    name: "Gold Crystal Ring Set",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    price: 150,
-    salePrice: 120,
-    stock: 15,
-    weight: 20,
-    categoryId: "1",
-    category: {
-      name: "Rings",
-      slug: "rings",
-    },
-    images: [
-      {
-        id: "1",
-        url: "/assets/prod1.png",
-        alt: "Gold Crystal Ring Set - Top View",
-        isMain: true,
-      },
-      {
-        id: "2",
-        url: "/assets/prod2.png",
-        alt: "Gold Crystal Ring Set - Side View",
-        isMain: false,
-      },
-      {
-        id: "3",
-        url: "/assets/prod3.png",
-        alt: "Gold Crystal Ring Set - Worn Example",
-        isMain: false,
-      },
-      {
-        id: "4",
-        url: "/assets/prod1.png",
-        alt: "Gold Crystal Ring Set - Detail View",
-        isMain: false,
-      },
-    ],
-    attributes: [
-      { name: "Material", value: "Gold Plated" },
-      { name: "Crystals", value: "Clear Quartz" },
-      { name: "Energy", value: "Amplification" },
-      { name: "Chakra", value: "Crown" },
-    ],
-  });
+export default function ProductDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const { data: product, isLoading: productLoading } = useProduct(slug);
+
+  console.log(product);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -112,6 +73,8 @@ export default function ProductDetail() {
     hidden: { y: 50, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
   };
+
+  if (productLoading) return <div>Loading...</div>;
 
   return (
     <>
@@ -137,29 +100,31 @@ export default function ProductDetail() {
           >
             {/* Thumbnail sidebar */}
             <div className="flex md:flex-col gap-3 order-2 md:order-1">
-              {product.images.map((image, index) => (
-                <motion.div
-                  key={image.id}
-                  className={`w-20 h-20 border rounded-xl overflow-hidden cursor-pointer ${
-                    selectedImage === index
-                      ? "border-[#B73B45] border-2"
-                      : "border-gray-200"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <div className="relative w-full h-full">
-                    <div className="absolute inset-0 bg-white" />
-                    <Image
-                      src={product?.images[index]?.url}
-                      alt={product?.images[index]?.alt || product?.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </motion.div>
-              ))}
+              {productLoading
+                ? "Loading.."
+                : product.images.map((image: ProductImage, index: number) => (
+                    <motion.div
+                      key={image.id}
+                      className={`w-20 h-20 border rounded-xl overflow-hidden cursor-pointer ${
+                        selectedImage === index
+                          ? "border-[#B73B45] border-2"
+                          : "border-gray-200"
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedImage(index)}
+                    >
+                      <div className="relative w-full h-full">
+                        <div className="absolute inset-0 bg-white" />
+                        <Image
+                          src={product?.images[index]?.url}
+                          alt={product?.images[index]?.alt || product?.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </motion.div>
+                  ))}
             </div>
 
             {/* Main image */}
@@ -216,25 +181,6 @@ export default function ProductDetail() {
                     ${product.price}
                   </span>
                 )}
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <p className="text-gray-500 mb-4">Lorem ipsum</p>
-
-              <div className="grid grid-cols-4 gap-3 my-4">
-                {product.attributes.map((attr, index) => (
-                  <div
-                    key={index}
-                    className="border-[2.45px] border-[#D1D5DB] rounded-lg p-3 flex flex-col items-center justify-center text-center hover:border-[#B73B45] transition-colors"
-                  >
-                    <div className="w-8 h-8 mb-2">
-                      {/* Icon based on attribute type - simplified for demo */}
-                      <div className="w-full h-full bg-gray-200 rounded-full" />
-                    </div>
-                    <span className="text-sm font-medium">{attr.name}</span>
-                  </div>
-                ))}
               </div>
             </div>
 

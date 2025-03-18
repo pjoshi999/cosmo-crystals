@@ -3,9 +3,12 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useAppStore } from "@/hooks/hooks";
+import { resetPasswordService } from "@/lib/features/authSlice";
 
 export default function ResetPassword() {
   const router = useRouter();
+  const store = useAppStore();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -57,20 +60,19 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      // This would be replaced with your actual API call
-      // const response = await fetch("/api/auth/reset-password", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ password: formData.password, token }),
-      // });
+      const resultAction = await store.dispatch(
+        resetPasswordService({
+          resetToken: token,
+          newPassword: formData.password,
+        })
+      );
 
-      // Mock successful response for demo
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      if (resetPasswordService.fulfilled.match(resultAction)) {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      }
     } catch {
       setError("Failed to reset password. Please try again.");
     } finally {
@@ -92,7 +94,7 @@ export default function ResetPassword() {
 
   return (
     <Suspense fallback="Loading...">
-      <div className="min-h-screen bg-[#F7F3F4] flex items-center justify-center px-4">
+      <div className="min-h-[90vh] bg-[#F7F3F4] flex items-center justify-center px-4">
         <motion.div
           className="w-full max-w-md"
           initial="hidden"
@@ -102,7 +104,7 @@ export default function ResetPassword() {
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="p-8">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-center text-3xl font-bold text-[#B73B45] mb-3">
                   Reset Password
                 </h1>
                 <p className="text-gray-600 mt-2">
@@ -111,6 +113,17 @@ export default function ResetPassword() {
                     : "Please enter your new password below"}
                 </p>
               </div>
+
+              {error && (
+                <motion.div
+                  className="bg-red-50 text-red-600 p-4 rounded-lg mb-6"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {error}
+                </motion.div>
+              )}
 
               {!success ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -153,16 +166,6 @@ export default function ResetPassword() {
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#B73B45] focus:outline-none focus:ring-1 focus:ring-[#B73B45]"
                     />
                   </div>
-
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-sm"
-                    >
-                      {error}
-                    </motion.div>
-                  )}
 
                   <motion.button
                     variants={buttonVariants}

@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import { useAppStore } from "@/hooks/hooks";
+import { signupService } from "@/lib/features/authSlice";
 
 export default function Register() {
   const router = useRouter();
+  const store = useAppStore();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -86,6 +89,12 @@ export default function Register() {
     setError("");
 
     // Validate passwords
+    if (formData.password.length < 8) {
+      setError("Password must be greater than 8 characters");
+      return;
+    }
+
+    // Validate passwords
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -94,14 +103,17 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // Implement your registration logic here
-      // Example: const response = await fetch('/api/auth/register', { method: 'POST', ... })
+      const resultAction = await store.dispatch(
+        signupService({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        })
+      );
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect on success
-      router.push("/profile");
+      if (signupService.fulfilled.match(resultAction)) {
+        router.push(`/`);
+      }
     } catch {
       setError("Registration failed. Please try again.");
     } finally {
@@ -111,7 +123,7 @@ export default function Register() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-[90vh] bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       initial="initial"
       animate="animate"
       exit="exit"
@@ -131,7 +143,7 @@ export default function Register() {
           variants={containerVariants}
         >
           <motion.div variants={itemVariants}>
-            <h2 className="text-center text-3xl font-bold text-[#B73B45] mb-6">
+            <h2 className="text-center text-3xl font-bold text-[#B73B45] mb-3">
               Create Account
             </h2>
             <p className="text-center text-gray-600 mb-8">
@@ -151,7 +163,7 @@ export default function Register() {
           )}
 
           <div className="mb-8">
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <motion.div
                 className={`flex items-center justify-center w-8 h-8 rounded-full ${
                   step >= 1
@@ -184,7 +196,7 @@ export default function Register() {
               >
                 2
               </motion.div>
-            </div>
+            </div> */}
           </div>
 
           {step === 1 && (

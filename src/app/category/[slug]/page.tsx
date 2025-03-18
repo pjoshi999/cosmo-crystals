@@ -45,6 +45,8 @@ export default function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  // const searchParams = useSearchParams();
+  // const categorySlug = searchParams.get("slug") || "";
 
   const { data: categoryData, isLoading: categoryLoading } = useCategory();
   const { data: productData, isLoading: productLoading } = useProducts();
@@ -187,7 +189,7 @@ export default function CategoryPage({
 
     // Find the category based on slug
     const foundCategory = categoryData?.categories.find(
-      (cat: Category) => cat.slug === (slug || "")
+      (cat: Category) => cat.slug === slug.toLowerCase()
     );
     setCategory(foundCategory || null);
 
@@ -196,7 +198,7 @@ export default function CategoryPage({
       ? productData?.products.filter(
           (product: Product) => product?.categoryId === foundCategory?.id
         )
-      : productData?.products;
+      : [];
 
     setProducts(filteredProducts);
   }, [slug, categoryData, productData]);

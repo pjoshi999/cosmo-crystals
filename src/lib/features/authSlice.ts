@@ -1,246 +1,235 @@
-// import authService from "@/services/authService";
-// import { ApiError } from "@/types/api";
-// import { handleApiError } from "@/utils/apiHelpers";
-// import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-// import cookies from "js-cookie";
+import authService from "@/services/authService";
+import {
+  ForgotPasswordPayload,
+  LoginPayload,
+  LoginResponse,
+  ResetPasswordPayload,
+  SignupPayload,
+} from "@/types/auth";
+import { ApiError } from "@/types/error";
+import { handleApiError } from "@/utils/apiHelpers";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 
-// interface AuthState {
-//   user: null;
-//   loading: boolean;
-//   error: Record<string, string[]> | null;
-// }
+const cookieOptions = { expires: 30, secure: true };
 
-// interface LoginPayload {
-//   phone_number: string;
-//   password: string;
-// }
+export const signupService = createAsyncThunk(
+  "auth/signup",
+  async (data: SignupPayload, thunkAPI) => {
+    try {
+      const response = await authService.signup(data);
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error("No data found");
+    } catch (error) {
+      console.log("Login Error:", error);
+      const { error: errorDetails } = handleApiError(error as ApiError);
 
-// interface LoginResponse {
-//   access: string;
-//   refresh: string;
-// }
+      return thunkAPI.rejectWithValue(errorDetails);
+    }
+  }
+);
 
-// interface ResetPasswordPayload {
-//   phone_number: string;
-//   otp: string;
-//   password: string;
-// }
+export const loginService = createAsyncThunk(
+  "auth/login",
+  async (data: LoginPayload, thunkAPI) => {
+    try {
+      const response = await authService.login(data);
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error("No data found");
+    } catch (error) {
+      console.log("Login Error:", error);
 
-// interface ForgotPasswordPayload {
-//   phone_number: string;
-// }
+      const { error: errorDetails } = handleApiError(error as ApiError);
 
-// interface ResetPasswordPayload {
-//   phone_number: string;
-//   otp: string;
-//   password: string;
-// }
+      return thunkAPI.rejectWithValue(errorDetails);
+    }
+  }
+);
 
-// export const loginServiceAdmin = createAsyncThunk(
-//   "auth/loginAdmin",
-//   async (data: LoginPayload, thunkAPI) => {
-//     try {
-//       const response = await authService.loginAdmin(data);
-//       if (response && response.data) {
-//         console.log(response.data);
-//         const cookieOptions = { expires: 30, secure: true };
-//         Cookies.set("accessToken", response.data?.access, cookieOptions);
-//         Cookies.set("refreshToken", response.data?.refresh, cookieOptions);
+export const resetPasswordService = createAsyncThunk(
+  "auth/resetPassword",
+  async (data: ResetPasswordPayload, thunkAPI) => {
+    try {
+      const response = await authService.resetPassword(data);
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error("No data found");
+    } catch (error) {
+      console.log("Login Error:", error);
 
-//         return response.data;
-//       }
-//       throw new Error("No data found");
-//     } catch (error) {
-//       console.log(error);
-//       if (error instanceof Error) {
-//         const { error: errorDetails } = handleApiError(error as ApiError);
+      const { error: errorDetails } = handleApiError(error as ApiError);
 
-//         return thunkAPI.rejectWithValue(errorDetails);
-//       }
-//       throw error;
-//     }
-//   }
-// );
+      return thunkAPI.rejectWithValue(errorDetails);
+    }
+  }
+);
 
-// export const loginServiceStaff = createAsyncThunk(
-//   "auth/loginStaff",
-//   async (data: LoginPayload, thunkAPI) => {
-//     try {
-//       const response = await authService.loginStaff(data);
-//       if (response && response.data) {
-//         console.log(response.data);
-//         const cookieOptions = { expires: 30, secure: true };
-//         Cookies.set("accessToken", response.data?.access, cookieOptions);
-//         Cookies.set("refreshToken", response.data?.refresh, cookieOptions);
+export const forgotPasswordService = createAsyncThunk(
+  "auth/forgotPassword",
+  async (data: ForgotPasswordPayload, thunkAPI) => {
+    try {
+      const response = await authService.forgotPassword(data);
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error("No data found");
+    } catch (error) {
+      console.log("Login Error:", error);
 
-//         return response.data;
-//       }
-//       throw new Error("No data found");
-//     } catch (error) {
-//       console.log(error);
-//       if (error instanceof Error) {
-//         const { error: errorDetails } = handleApiError(error as ApiError);
+      const { error: errorDetails } = handleApiError(error as ApiError);
 
-//         return thunkAPI.rejectWithValue(errorDetails);
-//       }
-//       throw error;
-//     }
-//   }
-// );
+      return thunkAPI.rejectWithValue(errorDetails);
+    }
+  }
+);
 
-// export const resetPasswordService = createAsyncThunk(
-//   "auth/resetPassword",
-//   async (data: ResetPasswordPayload, thunkAPI) => {
-//     try {
-//       const response = await authService.resetPassword(data);
-//       if (response && response.data) {
-//         return response.data;
-//       }
-//       throw new Error("No data found");
-//     } catch (error) {
-//       if (error instanceof Error) {
-//         const { error: errorDetails } = handleApiError(error as ApiError);
-//         console.log("error:", errorDetails);
+export const logoutService = createAsyncThunk(
+  "auth/logout",
+  async (data: null, thunkAPI) => {
+    try {
+      const response = await authService.logout();
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error("No data found");
+    } catch (error) {
+      console.log("Login Error:", error);
 
-//         return thunkAPI.rejectWithValue(errorDetails);
-//       }
-//       throw error;
-//     }
-//   }
-// );
+      const { error: errorDetails } = handleApiError(error as ApiError);
 
-// export const forgotPasswordService = createAsyncThunk(
-//   "auth/forgotPassword",
-//   async (data: ForgotPasswordPayload, thunkAPI) => {
-//     try {
-//       const response = await authService.forgotPassword(data);
-//       if (response && response.data) {
-//         return response.data;
-//       }
-//       throw new Error("No data found");
-//     } catch (error) {
-//       if (error instanceof Error) {
-//         const { error: errorDetails } = handleApiError(error as ApiError);
-//         console.log("error:", errorDetails);
+      return thunkAPI.rejectWithValue(errorDetails);
+    }
+  }
+);
 
-//         return thunkAPI.rejectWithValue(errorDetails);
-//       }
-//       throw error;
-//     }
-//   }
-// );
+interface AuthState {
+  loading: boolean;
+  error: Record<string, string[]> | null;
+}
 
-// const initialState: AuthState = {
-//   user: null,
-//   loading: false,
-//   error: null,
-// };
+const initialState: AuthState = {
+  loading: false,
+  error: null,
+};
 
-// // Define your user slice
-// const authSlice = createSlice({
-//   name: "auth",
-//   initialState,
-//   reducers: {
-//     logout: (state) => {
-//       state.user = null;
-//       state.loading = false;
-//       state.error = null;
-//       Cookies.remove("accessToken");
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(loginServiceAdmin.pending, (state) => {
-//         console.log("Login service is pending...");
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(
-//         loginServiceAdmin.fulfilled,
-//         (state, action: PayloadAction<LoginResponse>) => {
-//           console.log("Login successful:", action.payload);
-//           state.error = null;
-//           state.loading = false;
-//           Cookies.set("accessToken", action.payload.access, {
-//             expires: 30,
-//             secure: true,
-//           });
-//           Cookies.set("refreshToken", action.payload.refresh, {
-//             expires: 30,
-//             secure: true,
-//           });
-//         }
-//       )
-//       .addCase(loginServiceAdmin.rejected, (state, action) => {
-//         console.log("Login failed:", action.payload);
-//         state.error = action.payload as Record<string, string[]>;
-//         state.loading = false;
-//       });
+// Define your user slice
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginService.pending, (state) => {
+        console.log("Login service is pending...");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        loginService.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          console.log("Login successful:", action.payload);
+          state.error = null;
+          state.loading = false;
+          Cookies.set("accessToken", action.payload.accessToken, cookieOptions);
+          Cookies.set(
+            "refreshToken",
+            action.payload.refreshToken,
+            cookieOptions
+          );
+        }
+      )
+      .addCase(loginService.rejected, (state, action) => {
+        console.log("Login failed:", action.payload);
+        state.error = action.payload as Record<string, string[]>;
+        state.loading = false;
+      });
 
-//     builder
-//       .addCase(loginServiceStaff.pending, (state) => {
-//         console.log("Login Staff service is pending...");
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(
-//         loginServiceStaff.fulfilled,
-//         (state, action: PayloadAction<LoginResponse>) => {
-//           console.log("Login Staff successful:", action.payload);
-//           state.error = null;
-//           state.loading = false;
-//           Cookies.set("accessToken", action.payload.access, {
-//             expires: 30,
-//             secure: true,
-//           });
-//           Cookies.set("refreshToken", action.payload.refresh, {
-//             expires: 30,
-//             secure: true,
-//           });
-//         }
-//       )
-//       .addCase(loginServiceStaff.rejected, (state, action) => {
-//         console.log("Login Staff failed:", action.payload);
-//         state.error = action.payload as Record<string, string[]>;
-//         state.loading = false;
-//       });
+    builder
+      .addCase(signupService.pending, (state) => {
+        console.log("Signup is pending...");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        signupService.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          console.log("Signup successful:", action.payload);
+          state.error = null;
+          state.loading = false;
+          Cookies.set("accessToken", action.payload.accessToken, cookieOptions);
+          Cookies.set(
+            "refreshToken",
+            action.payload.refreshToken,
+            cookieOptions
+          );
+        }
+      )
+      .addCase(signupService.rejected, (state, action) => {
+        console.log("Signup failed:", action.payload);
+        state.error = action.payload as Record<string, string[]>;
+        state.loading = false;
+      });
 
-//     builder
-//       .addCase(forgotPasswordService.pending, (state) => {
-//         console.log("Forgot password is pending...");
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(forgotPasswordService.fulfilled, (state) => {
-//         console.log("Forgot password successful!");
-//         state.error = null;
-//         state.loading = false;
-//       })
-//       .addCase(forgotPasswordService.rejected, (state, action) => {
-//         console.log("Forgot password failed:", action.payload);
-//         state.error = action.payload as Record<string, string[]>;
-//         state.loading = false;
-//       });
+    builder
+      .addCase(forgotPasswordService.pending, (state) => {
+        console.log("Forgot password is pending...");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPasswordService.fulfilled, (state) => {
+        console.log("Forgot password successful!");
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(forgotPasswordService.rejected, (state, action) => {
+        console.log("Forgot password failed:", action.payload);
+        state.error = action.payload as Record<string, string[]>;
+        state.loading = false;
+      });
 
-//     builder
-//       .addCase(resetPasswordService.pending, (state) => {
-//         console.log("Reset password is pending...");
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(resetPasswordService.fulfilled, (state) => {
-//         console.log("Reset password successful!");
-//         state.error = null;
-//         state.loading = false;
-//       })
-//       .addCase(resetPasswordService.rejected, (state, action) => {
-//         console.log("Reset password failed:", action.payload);
-//         state.error = action.payload as Record<string, string[]>;
-//         state.loading = false;
-//       });
-//   },
-// });
+    builder
+      .addCase(resetPasswordService.pending, (state) => {
+        console.log("Reset password is pending...");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPasswordService.fulfilled, (state) => {
+        console.log("Reset password successful!");
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(resetPasswordService.rejected, (state, action) => {
+        console.log("Reset password failed:", action.payload);
+        state.error = action.payload as Record<string, string[]>;
+        state.loading = false;
+      });
 
-// export const { logout } = authSlice.actions;
+    builder
+      .addCase(logoutService.pending, (state) => {
+        console.log("Logout service is pending...");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutService.fulfilled, (state) => {
+        console.log("Logout successful");
+        state.error = null;
+        state.loading = false;
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
+      })
+      .addCase(logoutService.rejected, (state, action) => {
+        console.log("Logout failed:", action.payload);
+        state.error = action.payload as Record<string, string[]>;
+        state.loading = false;
+      });
+  },
+});
 
-// export default authSlice.reducer;
+export const {} = authSlice.actions;
+
+export default authSlice.reducer;

@@ -3,12 +3,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import { useAppStore } from "@/hooks/hooks";
+import { forgotPasswordService } from "@/lib/features/authSlice";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const store = useAppStore();
+  const [email, setEmail] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<boolean>(false);
 
   // Animation variants
   const pageVariants = {
@@ -37,14 +40,15 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      // Implement your password reset request logic here
-      // Example: const response = await fetch('/api/auth/forgot-password', { method: 'POST', ... })
+      const resultAction = await store.dispatch(
+        forgotPasswordService({
+          email: email,
+        })
+      );
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Show success message
-      setSuccess(true);
+      if (forgotPasswordService.fulfilled.match(resultAction)) {
+        setSuccess(true);
+      }
     } catch {
       setError("An error occurred. Please try again.");
     } finally {
@@ -54,7 +58,7 @@ export default function ForgotPassword() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-[90vh] bg-[#F7F3F4] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       initial="initial"
       animate="animate"
       exit="exit"

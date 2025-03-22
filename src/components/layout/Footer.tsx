@@ -277,10 +277,10 @@ export default function Footer() {
     <footer className="bg-white py-6">
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
         <p className="text-gray-500 text-sm">
-          © 2025 Cosmo Crystals. All rights reserved.
+          © {new Date().getFullYear()} Cosmo Crystals. All rights reserved.
         </p>
 
-        <div className="flex space-x-6 mt-4 md:mt-0">
+        {/* <div className="flex space-x-6 mt-4 md:mt-0">
           <Link
             href="#"
             className="text-gray-500 hover:text-[#B73B45] transition-colors text-sm"
@@ -305,7 +305,7 @@ export default function Footer() {
           >
             Contact
           </Link>
-        </div>
+        </div> */}
 
         <div className="flex space-x-4 mt-4 md:mt-0">
           <Link

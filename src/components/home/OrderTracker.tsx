@@ -60,8 +60,7 @@ export default function OrderTracker() {
         }
         setLoading(false);
       }, 1000);
-    } catch (err) {
-      console.log(err);
+    } catch {
       setError("Failed to track order. Please try again.");
       setLoading(false);
     }

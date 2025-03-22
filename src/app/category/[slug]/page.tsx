@@ -46,17 +46,18 @@ export default function CategoryPage({
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [500, 2000],
+    priceRange: [400, 5000],
     attributes: [] as string[],
     sort: "newest",
   });
 
-  console.log(filtersApplied);
+  console.log(slug);
 
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
-      (cat: Category) => cat.slug === slug?.toLowerCase()
+      (cat: Category) => cat.slug?.toLowerCase() === slug?.toLowerCase()
     );
+    console.log(foundCategory);
     setCategory(foundCategory || null);
 
     const filteredProducts = foundCategory
@@ -65,22 +66,19 @@ export default function CategoryPage({
         )
       : productData?.products;
 
+    console.log(filteredProducts);
     const filteredByPrice = filteredProducts?.filter(
       (product: Product) =>
-        product.salePrice >= filtersApplied.priceRange[0] &&
-        product.salePrice <= filtersApplied.priceRange[1]
+        product?.salePrice >= filtersApplied?.priceRange[0] &&
+        product?.salePrice <= filtersApplied?.priceRange[1]
     );
-
-    // console.log("filteredByPrice", filteredByPrice);
+    console.log(filteredByPrice);
 
     const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
       return filtersApplied.attributes.some((attr) => {
-        // console.log(attr, product.subCategory?.name);
         return product.subCategory?.name === attr;
       });
     });
-
-    console.log("filteredByAttributes", filteredByAttributes);
 
     if (filtersApplied.attributes.length > 0) {
       setProducts(filteredByAttributes);
@@ -156,9 +154,15 @@ export default function CategoryPage({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl font-bold text-gray-900">All Crystals</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {category ? category?.name?.replaceAll("-", " ") : "All Crystals"}
+            </h1>
             {/* {category?.description && ( */}
-            <p className="mt-2 text-gray-600">description</p>
+            <p className="mt-2 text-gray-600">
+              {category
+                ? category?.description?.split("\n")[0]
+                : "All Crystals"}
+            </p>
             {/* )} */}
           </motion.div>
 
@@ -237,8 +241,8 @@ export default function CategoryPage({
                 <div className="px-2">
                   <input
                     type="range"
-                    min="500"
-                    max="2000"
+                    min="00"
+                    max="5000"
                     value={filtersApplied.priceRange[1]}
                     onChange={(e) =>
                       setFiltersApplied({
@@ -261,37 +265,38 @@ export default function CategoryPage({
               {/* Crystal Types */}
               <div className="mb-6">
                 {categoryData?.categories?.map(
-                  (category: Category, index: number) => (
-                    <div
-                      className={`${index !== 0 && "pt-5"}`}
-                      key={category?.id}
-                    >
-                      <h3 className="text-md font-medium mb-3 capitalize">
-                        {category?.name?.replaceAll("-", " ")}
-                      </h3>
-                      <div className="space-y-2">
-                        {category?.subCategory.map((sub: SubCategory) => (
-                          <div key={sub?.id} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={`type-${sub?.name}`}
-                              className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
-                              checked={filtersApplied.attributes.includes(
-                                sub?.name
-                              )}
-                              onChange={() => handleCheckHandler(sub?.name)}
-                            />
-                            <label
-                              htmlFor={`type-${sub?.name}`}
-                              className="ml-2 text-sm text-gray-600 capitalize"
-                            >
-                              {sub?.name?.replaceAll("-", " ")}
-                            </label>
-                          </div>
-                        ))}
+                  (category: Category, index: number) =>
+                    category.slug === slug && (
+                      <div
+                        className={`${index !== 0 && "pt-5"}`}
+                        key={category?.id}
+                      >
+                        <h3 className="text-md font-medium mb-3 capitalize">
+                          {category?.name?.replaceAll("-", " ")}
+                        </h3>
+                        <div className="space-y-2">
+                          {category?.subCategory.map((sub: SubCategory) => (
+                            <div key={sub?.id} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`type-${sub?.name}`}
+                                className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
+                                checked={filtersApplied.attributes.includes(
+                                  sub?.name
+                                )}
+                                onChange={() => handleCheckHandler(sub?.name)}
+                              />
+                              <label
+                                htmlFor={`type-${sub?.name}`}
+                                className="ml-2 text-sm text-gray-600 capitalize"
+                              >
+                                {sub?.name?.replaceAll("-", " ")}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )
+                    )
                 )}
               </div>
             </motion.div>

@@ -308,7 +308,7 @@ export default function Footer() {
         </div> */}
 
         <div className="flex space-x-4 mt-4 md:mt-0">
-          <Link
+          {/* <Link
             href="#"
             className="p-2 text-gray-500 hover:text-[#B73B45] transition-colors"
           >
@@ -326,9 +326,9 @@ export default function Footer() {
                 d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
               />
             </svg>
-          </Link>
+          </Link> */}
           <Link
-            href="#"
+            href="mailto:cosmocrystalsshop@gmail.com"
             className="p-2 text-gray-500 hover:text-[#B73B45] transition-colors"
           >
             <svg
@@ -346,7 +346,7 @@ export default function Footer() {
               />
             </svg>
           </Link>
-          <Link
+          {/* <Link
             href="#"
             className="p-2 text-gray-500 hover:text-[#B73B45] transition-colors"
           >
@@ -364,7 +364,7 @@ export default function Footer() {
                 d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
               />
             </svg>
-          </Link>
+          </Link> */}
         </div>
       </div>
     </footer>

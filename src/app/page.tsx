@@ -67,7 +67,6 @@ export default function Home() {
   const { data: productData, isLoading: productLoading } = useProducts({
     limit: 8,
   });
-  console.log(productData, categoryData);
 
   // Animation variants
   const fadeIn = {
@@ -252,7 +251,7 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
-                Shop by intention
+                Shop by Category
               </motion.h2>
 
               <motion.div
@@ -264,25 +263,45 @@ export default function Home() {
               >
                 {categoryLoading
                   ? "Loading.."
-                  : categoryData?.categories.map((category: Category) => (
-                      <motion.a
-                        href="/category"
-                        key={category.id}
-                        variants={slideUp}
-                        whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                        className="bg-white rounded-2xl shadow-md overflow-hidden"
-                      >
-                        <div className={`h-48 bg-[#C65A64]`}></div>
-                        <div className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900">
-                            {category.name}
-                          </h3>
-                          <p className="text-gray-600 mt-2">
-                            {category.description}
-                          </p>
-                        </div>
-                      </motion.a>
-                    ))}
+                  : categoryData?.categories.map(
+                      (category: Category, index: number) => (
+                        <motion.a
+                          href={`/category/${category.slug}`}
+                          key={category.id}
+                          variants={slideUp}
+                          whileHover={{ y: -10, transition: { duration: 0.2 } }}
+                          className="bg-white rounded-2xl shadow-md overflow-hidden"
+                        >
+                          {/* <div className={`h-48 overflow-hidden`}>
+                            <Image
+                              src={`/assets/prod${index + 1}.png`}
+                              alt={category?.name}
+                              fill
+                              className="object-cover h-full w-full"
+                            />
+                          </div> */}
+                          <div className="relative h-48 md:h-56 lg:h-64 bg-[#F0E6E8]">
+                            <Image
+                              src={`/assets/prod${index + 2}.png`}
+                              alt="Product Image"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="p-6">
+                            <h3 className="text-xl font-bold text-gray-900">
+                              {category?.name}
+                            </h3>
+                            <p className="text-gray-600 mt-2">
+                              {category?.description &&
+                              category?.description?.length > 50
+                                ? category?.description.slice(0, 50) + "..."
+                                : category?.description}
+                            </p>
+                          </div>
+                        </motion.a>
+                      )
+                    )}
               </motion.div>
             </div>
           </section>

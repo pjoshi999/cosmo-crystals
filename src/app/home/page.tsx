@@ -1,6 +1,6 @@
 import Hero from "@/components/home/Hero";
 import Categories from "@/components/home/Categories";
-import FeaturedProducts from "@/components/home/FeaturedProduct";
+// import FeaturedProducts from "@/components/home/FeaturedProduct";
 // import ProductsShowcase from "@/components/home/ProductShowcase";
 // import Features from "@/components/home/Features";
 import Testimonials from "@/components/home/Testimonial";
@@ -14,7 +14,7 @@ export default function Home() {
       {/* <Features /> */}
       <OrderTracker />
       <Categories />
-      <FeaturedProducts />
+      {/* <FeaturedProducts /> */}
       <div className="py-12">
         <div className="container">
           <div className="grid items-center grid-cols-1 gap-8 p-8 bg-gray-200 rounded-lg shadow-md md:grid-cols-2">

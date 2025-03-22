@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Cosmo Crystals",
@@ -12,9 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <Suspense fallback="Loading...">
       <Header options={false} />
       {children}
-    </>
+    </Suspense>
   );
 }

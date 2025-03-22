@@ -48,12 +48,10 @@ export default function CategoryPage() {
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [500, 2000],
+    priceRange: [400, 5000],
     attributes: [] as string[],
     sort: "newest",
   });
-
-  console.log(filtersApplied);
 
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
@@ -73,16 +71,11 @@ export default function CategoryPage() {
         product.salePrice <= filtersApplied.priceRange[1]
     );
 
-    // console.log("filteredByPrice", filteredByPrice);
-
     const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
       return filtersApplied.attributes.some((attr) => {
-        // console.log(attr, product.subCategory?.name);
         return product.subCategory?.name === attr;
       });
     });
-
-    console.log("filteredByAttributes", filteredByAttributes);
 
     if (filtersApplied.attributes.length > 0) {
       setProducts(filteredByAttributes);
@@ -158,9 +151,15 @@ export default function CategoryPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl font-bold text-gray-900">All Crystals</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {category ? category?.name?.replaceAll("-", " ") : "All Crystals"}
+            </h1>
             {/* {category?.description && ( */}
-            <p className="mt-2 text-gray-600">description</p>
+            <p className="mt-2 text-gray-600">
+              {category
+                ? category?.description?.split("\n")[0]
+                : "All Crystals"}
+            </p>
             {/* )} */}
           </motion.div>
 
@@ -239,8 +238,8 @@ export default function CategoryPage() {
                 <div className="px-2">
                   <input
                     type="range"
-                    min="500"
-                    max="2000"
+                    min="400"
+                    max="5000"
                     value={filtersApplied.priceRange[1]}
                     onChange={(e) =>
                       setFiltersApplied({

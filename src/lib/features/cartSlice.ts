@@ -1,10 +1,10 @@
 import { cartKeys } from "@/api/endpoints/cart";
 import { queryClient } from "@/app/QueryProvider";
 import cartService from "@/services/cartService";
-import { CartItemPayload, CartItemResponse } from "@/types";
+import { CartItemPayload } from "@/types";
 import { ApiError } from "@/types/error";
 import { handleApiError } from "@/utils/apiHelpers";
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const addToCartService = createAsyncThunk(
   "cart/addToCart",
@@ -17,7 +17,7 @@ export const addToCartService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
       const { error: errorDetails } = handleApiError(error as ApiError);
 
       return thunkAPI.rejectWithValue(errorDetails);
@@ -36,7 +36,7 @@ export const updateCartService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
       const { error: errorDetails } = handleApiError(error as ApiError);
 
       return thunkAPI.rejectWithValue(errorDetails);
@@ -55,7 +55,7 @@ export const removeFromCartService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
       const { error: errorDetails } = handleApiError(error as ApiError);
 
       return thunkAPI.rejectWithValue(errorDetails);
@@ -81,60 +81,54 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addToCartService.pending, (state) => {
-        console.log("Add to cart service is pending...");
+        // console.log("Add to cart service is pending...");
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        addToCartService.fulfilled,
-        (state, action: PayloadAction<CartItemResponse>) => {
-          console.log("Add to cart service successful:", action.payload);
-          state.error = null;
-          state.loading = false;
-        }
-      )
+      .addCase(addToCartService.fulfilled, (state) => {
+        // console.log("Add to cart service successful:", action.payload);
+        state.error = null;
+        state.loading = false;
+      })
       .addCase(addToCartService.rejected, (state, action) => {
-        console.log("Add to cart service failed:", action.payload);
+        // console.log("Add to cart service failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(updateCartService.pending, (state) => {
-        console.log("Update cart service is pending...");
+        // console.log("Update cart service is pending...");
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        updateCartService.fulfilled,
-        (state, action: PayloadAction<CartItemResponse>) => {
-          console.log("Update cart service successful:", action.payload);
-          state.error = null;
-          state.loading = false;
-        }
-      )
+      .addCase(updateCartService.fulfilled, (state) => {
+        // console.log("Update cart service successful:", action.payload);
+        state.error = null;
+        state.loading = false;
+      })
       .addCase(updateCartService.rejected, (state, action) => {
-        console.log("Update cart service failed:", action.payload);
+        // console.log("Update cart service failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(removeFromCartService.pending, (state) => {
-        console.log("Remove from cart service is pending...");
+        // console.log("Remove from cart service is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(
         removeFromCartService.fulfilled,
-        (state, action: PayloadAction<{ message: string }>) => {
-          console.log("Remove from cart service successful:", action.payload);
+        (state) => {
+          // console.log("Remove from cart service successful:", action.payload);
           state.error = null;
           state.loading = false;
         }
       )
       .addCase(removeFromCartService.rejected, (state, action) => {
-        console.log("Remove from cart service failed:", action.payload);
+        // console.log("Remove from cart service failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });

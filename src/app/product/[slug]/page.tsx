@@ -46,11 +46,11 @@ export default function ProductDetail({
 
     if (pendingAction && isLoggedIn) {
       try {
-        const { action, productName, quantity } = JSON.parse(pendingAction);
+        const { action } = JSON.parse(pendingAction);
         if (action === "addToCart") {
-          console.log(
-            `Adding ${quantity} of ${productName} to cart after login`
-          );
+          // console.log(
+          //   `Adding ${quantity} of ${productName} to cart after login`
+          // );
         }
 
         localStorage.removeItem("cartPendingAction");
@@ -65,8 +65,6 @@ export default function ProductDetail({
     if (!isLoggedIn) {
       setShowAuthModal(true);
     } else {
-      console.log(`Adding ${quantity} of ${product.name} to cart`);
-
       const resultAction = await store.dispatch(
         addToCartService({
           productId: product?.id,
@@ -93,7 +91,7 @@ export default function ProductDetail({
   if (productLoading)
     return (
       <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
-        Loading...
+        <Image src="/assets/logo.png" alt="" width={25} height={25} />
       </div>
     );
 

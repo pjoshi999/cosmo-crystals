@@ -37,7 +37,7 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
         errorData.message = [data?.message];
       }
 
-      console.log("data", data, errorData);
+      // console.log("data", data, errorData);
 
       // Handle other fields
       // Object.entries(data).forEach(([key, value]) => {
@@ -51,7 +51,7 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
       //   }
       // });
 
-      console.log("errorData", errorData);
+      // console.log("errorData", errorData);
 
       // Show toasts for each error
       // Object.entries(errorData).forEach(([, messages]) => {
@@ -61,9 +61,9 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
       // });
 
       if (Array.isArray(data?.error)) {
-        console.log("inside errordata array");
+        // console.log("inside errordata array");
         data?.error.map((error) => {
-          console.log("toast error", error);
+          // console.log("toast error", error);
           toast.error(error?.message || error);
         });
       }
@@ -82,7 +82,7 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
     console.error("Error parsing API response:", e);
   }
 
-  console.log(defaultError);
+  // console.log(defaultError);
 
   return defaultError;
 };

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Minus, ArrowRight, Trash2 } from "lucide-react";
@@ -33,8 +33,6 @@ export default function Cart() {
       setCartItems(data);
     }
   }, [data]);
-
-  console.log(data);
 
   // Animation variants
   const fadeIn = {
@@ -78,24 +76,23 @@ export default function Cart() {
 
     setCartItems(
       cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
+        item.productId === id ? { ...item, quantity: newQuantity } : item
       )
     );
     // updateQuantityAPI(id, newQuantity);
     debouncedUpdateAPI(id, newQuantity);
   };
 
-  const debouncedUpdateAPI = useCallback(
-    (id: string, newQuantity: number) => {
-      debounce(() => {
+  const debouncedUpdateAPI = useMemo(
+    () =>
+      debounce((productId: string, newQuantity: number) => {
         store.dispatch(
           updateCartService({
-            productId: id,
+            productId: productId,
             quantity: newQuantity,
           })
         );
-      }, 300)();
-    },
+      }, 1000),
     [store]
   );
 
@@ -198,7 +195,7 @@ export default function Cart() {
                             {item?.product?.name}
                           </h3>
                           <p className="text-[#B73B45] font-bold mt-1">
-                            ${item?.product?.price.toFixed(2)}
+                            ₹{item?.product?.price.toFixed(2)}
                           </p>
                         </div>
 

@@ -62,8 +62,6 @@ export default function Checkout() {
   const { data, isLoading } = useCart();
   const { data: countryData, isLoading: countryLoading } = useCountries();
 
-  console.log(countryData);
-
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.6 } },
@@ -285,7 +283,7 @@ export default function Checkout() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Simulating a successful API response
-      console.log("Address saved successfully:", address);
+      // console.log("Address saved successfully:", address);
       return true;
     } catch (error) {
       console.error("Error saving address:", error);
@@ -1006,7 +1004,7 @@ export default function Checkout() {
                   )}
                   {step == 2 && (
                     <WhatsAppRedirect
-                      phoneNumber="+917338649114"
+                      phoneNumber="+918980388129"
                       products={data}
                       address={address}
                       // additionalNotes={notes}

@@ -15,8 +15,6 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data, isLoading } = useCart();
 
-  console.log(data);
-
   // Check if user is logged in - assuming that if cart data is available, user is logged in
   const isLoggedIn = Cookies.get("accessToken");
 

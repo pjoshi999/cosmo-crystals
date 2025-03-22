@@ -67,9 +67,9 @@ export default function Login() {
         // Check if there was a pending cart action
         if (pendingCartAction) {
           // Log the pending action (you'd implement actual cart addition here)
-          console.log(
-            `Processing pending action: Adding ${pendingCartAction.quantity} of ${pendingCartAction.productName} to cart`
-          );
+          // console.log(
+          //   `Processing pending action: Adding ${pendingCartAction.quantity} of ${pendingCartAction.productName} to cart`
+          // );
           const resultAction = await store.dispatch(
             addToCartService({
               productId: pendingCartAction?.productId,

@@ -23,7 +23,7 @@ export const signupService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
       const { error: errorDetails } = handleApiError(error as ApiError);
 
       return thunkAPI.rejectWithValue(errorDetails);
@@ -41,7 +41,7 @@ export const loginService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // // console.log("Login Error:", error);
 
       const { error: errorDetails } = handleApiError(error as ApiError);
 
@@ -60,7 +60,7 @@ export const resetPasswordService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
 
       const { error: errorDetails } = handleApiError(error as ApiError);
 
@@ -79,7 +79,7 @@ export const forgotPasswordService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
 
       const { error: errorDetails } = handleApiError(error as ApiError);
 
@@ -98,7 +98,7 @@ export const logoutService = createAsyncThunk(
       }
       throw new Error("No data found");
     } catch (error) {
-      console.log("Login Error:", error);
+      // console.log("Login Error:", error);
 
       const { error: errorDetails } = handleApiError(error as ApiError);
 
@@ -125,14 +125,14 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loginService.pending, (state) => {
-        console.log("Login service is pending...");
+        // console.log("Login service is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(
         loginService.fulfilled,
         (state, action: PayloadAction<LoginResponse>) => {
-          console.log("Login successful:", action.payload);
+          // console.log("Login successful:", action.payload);
           state.error = null;
           state.loading = false;
           Cookies.set("accessToken", action.payload.accessToken, cookieOptions);
@@ -144,21 +144,21 @@ const authSlice = createSlice({
         }
       )
       .addCase(loginService.rejected, (state, action) => {
-        console.log("Login failed:", action.payload);
+        // console.log("Login failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(signupService.pending, (state) => {
-        console.log("Signup is pending...");
+        // console.log("Signup is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(
         signupService.fulfilled,
         (state, action: PayloadAction<LoginResponse>) => {
-          console.log("Signup successful:", action.payload);
+          // console.log("Signup successful:", action.payload);
           state.error = null;
           state.loading = false;
           Cookies.set("accessToken", action.payload.accessToken, cookieOptions);
@@ -170,60 +170,60 @@ const authSlice = createSlice({
         }
       )
       .addCase(signupService.rejected, (state, action) => {
-        console.log("Signup failed:", action.payload);
+        // console.log("Signup failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(forgotPasswordService.pending, (state) => {
-        console.log("Forgot password is pending...");
+        // console.log("Forgot password is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(forgotPasswordService.fulfilled, (state) => {
-        console.log("Forgot password successful!");
+        // console.log("Forgot password successful!");
         state.error = null;
         state.loading = false;
       })
       .addCase(forgotPasswordService.rejected, (state, action) => {
-        console.log("Forgot password failed:", action.payload);
+        // console.log("Forgot password failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(resetPasswordService.pending, (state) => {
-        console.log("Reset password is pending...");
+        // console.log("Reset password is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(resetPasswordService.fulfilled, (state) => {
-        console.log("Reset password successful!");
+        // console.log("Reset password successful!");
         state.error = null;
         state.loading = false;
       })
       .addCase(resetPasswordService.rejected, (state, action) => {
-        console.log("Reset password failed:", action.payload);
+        // console.log("Reset password failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });
 
     builder
       .addCase(logoutService.pending, (state) => {
-        console.log("Logout service is pending...");
+        // console.log("Logout service is pending...");
         state.loading = true;
         state.error = null;
       })
       .addCase(logoutService.fulfilled, (state) => {
-        console.log("Logout successful");
+        // console.log("Logout successful");
         state.error = null;
         state.loading = false;
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
       })
       .addCase(logoutService.rejected, (state, action) => {
-        console.log("Logout failed:", action.payload);
+        // console.log("Logout failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;
         state.loading = false;
       });

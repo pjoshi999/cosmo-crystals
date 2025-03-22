@@ -55,8 +55,6 @@ interface OrderItem {
 export default function ProfilePage() {
   const { data, isLoading } = useProfile();
 
-  console.log(data);
-
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.6 } },

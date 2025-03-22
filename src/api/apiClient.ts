@@ -61,8 +61,7 @@ const refreshToken = async () => {
     Cookies.set("accessToken", accessToken, { secure: true });
 
     return accessToken;
-  } catch (error) {
-    console.log("Failed to refresh token:", error);
+  } catch {
     Cookies.remove("accessToken");
     // window.location.href = "/login";
     return null;

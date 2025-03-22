@@ -45,13 +45,10 @@ const ProductCard: React.FC<{ product?: Product }> = ({ product }) => {
 
   const addToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    console.log("Added to cart:", productData.id);
-    // Here you would add your cart logic
   };
 
   const quickView = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    console.log("Quick view:", productData.id);
     // Here you would trigger your quick view modal
   };
 

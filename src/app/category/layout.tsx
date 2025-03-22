@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <Suspense fallback="Loading...">
       <Header />
-      {children}
+      <div className="min-h-[80vh]">{children}</div>
       <Footer />
     </Suspense>
   );

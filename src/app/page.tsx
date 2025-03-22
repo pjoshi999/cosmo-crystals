@@ -436,7 +436,7 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              <motion.div
+              {/* <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -446,7 +446,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-[#F0E6E8] rounded-2xl">
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-[#8A2A33] opacity-60"></div>
                 </div>
-              </motion.div>
+              </motion.div> */}
             </div>
           </section>
 

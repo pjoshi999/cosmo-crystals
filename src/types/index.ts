@@ -26,7 +26,18 @@ export type Category = {
   slug?: string;
   description?: string;
   image?: string;
+  subCategory: Array<SubCategory>;
 };
+
+export interface SubCategory {
+  id: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  image?: string;
+  categoryId: string;
+  category: Category;
+}
 
 export interface ProductAttributes {
   id: string;
@@ -55,3 +66,21 @@ export type Testimonial = {
   text: string;
   rating: number;
 };
+
+export interface CartItemResponse {
+  id: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+}
+
+export interface CartItemPayload {
+  productId: string;
+  quantity: number;
+}
+
+export interface PendingCartAction {
+  productName: string;
+  productId: string;
+  quantity: number;
+}

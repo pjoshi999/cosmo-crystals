@@ -52,7 +52,7 @@ const refreshToken = async () => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BASE_URL}/auth/refresh/`,
       {
-        refresh: refreshToken,
+        refreshToken: refreshToken,
       }
     );
     const accessToken = response.data?.accessToken;
@@ -62,8 +62,9 @@ const refreshToken = async () => {
 
     return accessToken;
   } catch (error) {
-    console.error("Failed to refresh token:", error);
+    console.log("Failed to refresh token:", error);
     Cookies.remove("accessToken");
+    // window.location.href = "/login";
     return null;
   }
 };

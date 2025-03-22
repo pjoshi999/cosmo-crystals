@@ -1,19 +1,34 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useCart } from "@/hooks/queries/useCart";
+import Cookies from "js-cookie";
 
 interface HeaderProps {
   options?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ options = true }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data, isLoading } = useCart();
 
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
+  console.log(data);
+
+  // Check if user is logged in - assuming that if cart data is available, user is logged in
+  const isLoggedIn = Cookies.get("accessToken");
+
+  // const toggleSearch = () => {
+  //   setIsSearchOpen(!isSearchOpen);
+  // };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  useEffect(() => {}, [data]);
 
   return (
     <header className="bg-white py-4 px-6 sticky top-0 z-50 shadow-sm">
@@ -48,12 +63,6 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
               Category
             </Link>
             <Link
-              href="/cosmoai"
-              className="text-gray-800 hover:text-[#B73B45] transition-colors"
-            >
-              Cosmo AI
-            </Link>
-            <Link
               href="/about"
               className="text-gray-800 hover:text-[#B73B45] transition-colors"
             >
@@ -64,70 +73,6 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
 
         {options && (
           <div className="flex items-center space-x-4">
-            <AnimatePresence>
-              {isSearchOpen ? (
-                <motion.div
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: "200px", opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative"
-                >
-                  <motion.input
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    type="text"
-                    placeholder="Search crystals..."
-                    className="w-full pl-3 pr-8 py-1 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#B73B45] text-sm"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleSearch}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#B73B45]"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </motion.button>
-                </motion.div>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={toggleSearch}
-                  className="p-2 hover:text-[#B73B45] transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </motion.button>
-              )}
-            </AnimatePresence>
-
             <Link
               href="/profile"
               className="p-2 hover:text-[#B73B45] transition-colors"
@@ -152,9 +97,9 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
 
             <Link
               href="/cart"
-              className="p-2 hover:text-[#B73B45] transition-colors"
+              className="p-2 hover:text-[#B73B45] transition-colors relative"
             >
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <motion.div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -169,10 +114,18 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
+
+                {isLoggedIn && data?.length > 0 && !isLoading && (
+                  <motion.div className="absolute -top-1 -right-1 flex items-center justify-center">
+                    <div className="bg-[#B73B45] text-white text-xs font-medium rounded-full h-4 w-4 min-w-4 flex items-center justify-center shadow-sm">
+                      {data?.length > 99 ? "99+" : data?.length || 0}
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             </Link>
 
-            <button className="md:hidden p-2">
+            <button className="md:hidden p-2" onClick={toggleMobileMenu}>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -185,7 +138,11 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
+                    d={
+                      isMobileMenuOpen
+                        ? "M6 18L18 6M6 6l12 12"
+                        : "M4 6h16M4 12h16M4 18h16"
+                    }
                   />
                 </svg>
               </motion.div>
@@ -193,6 +150,48 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
           </div>
         )}
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {options && isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden mt-4 px-2"
+          >
+            <motion.nav
+              className="flex flex-col space-y-4 bg-white rounded-lg shadow-md p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Link
+                href="/"
+                className="text-gray-800 hover:text-[#B73B45] transition-colors py-2 border-b border-gray-100"
+                onClick={toggleMobileMenu}
+              >
+                Home
+              </Link>
+              <Link
+                href="/category"
+                className="text-gray-800 hover:text-[#B73B45] transition-colors py-2 border-b border-gray-100"
+                onClick={toggleMobileMenu}
+              >
+                Category
+              </Link>
+              <Link
+                href="/about"
+                className="text-gray-800 hover:text-[#B73B45] transition-colors py-2"
+                onClick={toggleMobileMenu}
+              >
+                About
+              </Link>
+            </motion.nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

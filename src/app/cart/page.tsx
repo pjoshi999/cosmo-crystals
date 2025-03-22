@@ -1,20 +1,41 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Minus, ArrowRight, Trash2 } from "lucide-react";
+import { useCart } from "@/hooks/queries/useCart";
+import { Product } from "@/types";
+import {
+  removeFromCartService,
+  updateCartService,
+} from "@/lib/features/cartSlice";
+import { toast } from "sonner";
+import { useAppStore } from "@/hooks/hooks";
+import Image from "next/image";
+import debounce from "@/utils/debounce";
 
 // Define cart item types
-interface CartItem {
+export interface CartItem {
   id: string;
   productId: string;
-  name: string;
-  price: number;
+  product: Product;
   quantity: number;
-  image: string;
 }
 
 export default function Cart() {
+  const store = useAppStore();
+  const { data, isLoading } = useCart();
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    if (data) {
+      setCartItems(data);
+    }
+  }, [data]);
+
+  console.log(data);
+
   // Animation variants
   const fadeIn = {
     hidden: { opacity: 0 },
@@ -36,46 +57,19 @@ export default function Cart() {
     },
   };
 
-  // Sample cart items data
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      productId: "product1",
-      name: "Rose Quartz Cluster",
-      price: 42,
-      quantity: 1,
-      image: "/images/rose-quartz.jpg",
-    },
-    {
-      id: "2",
-      productId: "product2",
-      name: "Amethyst Tower",
-      price: 68,
-      quantity: 2,
-      image: "/images/amethyst.jpg",
-    },
-    {
-      id: "3",
-      productId: "product3",
-      name: "Clear Quartz Point",
-      price: 55,
-      quantity: 1,
-      image: "/images/clear-quartz.jpg",
-    },
-  ]);
-
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
   // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const subtotal = cartItems?.reduce(
+    (sum: number, item: CartItem) =>
+      sum + item?.product?.price * item?.quantity,
     0
   );
-  const shipping = subtotal > 100 ? 0 : 8.95;
+  const shipping = subtotal > 100 ? 0 : 99;
   const total = subtotal + shipping;
 
   // Update quantity function
@@ -87,12 +81,40 @@ export default function Cart() {
         item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
+    // updateQuantityAPI(id, newQuantity);
+    debouncedUpdateAPI(id, newQuantity);
   };
 
+  const debouncedUpdateAPI = useCallback(
+    (id: string, newQuantity: number) => {
+      debounce(() => {
+        store.dispatch(
+          updateCartService({
+            productId: id,
+            quantity: newQuantity,
+          })
+        );
+      }, 300)();
+    },
+    [store]
+  );
+
   // Remove item function
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  const removeItem = async (id: string) => {
+    // setCartItems(cartItems.filter((item) => item.id !== id));
+
+    const resultAction = await store.dispatch(
+      removeFromCartService({
+        productId: id,
+      })
+    );
+
+    if (removeFromCartService.fulfilled.match(resultAction)) {
+      toast.success("Item removed from cart");
+    }
   };
+
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="bg-[#F7F3F4] min-h-screen">
@@ -106,7 +128,7 @@ export default function Cart() {
           Your Cart
         </motion.h1>
 
-        {cartItems.length === 0 ? (
+        {data?.length === 0 ? (
           <motion.div
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
@@ -142,28 +164,41 @@ export default function Cart() {
               <div className="bg-white rounded-2xl shadow-md overflow-hidden">
                 <div className="p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">
-                    Items ({cartItems.length})
+                    Items ({data?.length})
                   </h2>
 
                   <div className="space-y-6">
-                    {cartItems.map((item) => (
+                    {cartItems?.map((item: CartItem) => (
                       <motion.div
                         key={item.id}
                         variants={slideUp}
                         className="flex items-center space-x-4 pb-6 border-b border-gray-100"
                       >
                         {/* Product image placeholder */}
-                        <div className="w-20 h-20 bg-[#F0E6E8] rounded-lg flex-shrink-0 relative">
-                          <div className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-[#D6A0A8] opacity-60"></div>
+                        <div className="w-20 h-20 bg-[#F0E6E8] rounded-lg flex-shrink-0 relative overflow-hidden">
+                          <Image
+                            src={
+                              item?.product?.images
+                                .map((img) =>
+                                  img.isMain ? img.url : undefined
+                                )
+                                .filter((url) => url !== undefined)[0] ||
+                              item?.product?.images[0]?.url
+                            }
+                            alt="Product Image"
+                            fill
+                            className="object-cover"
+                          />
+                          {/* <div className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-[#D6A0A8] opacity-60"></div> */}
                         </div>
 
                         {/* Product info */}
                         <div className="flex-grow">
                           <h3 className="font-medium text-gray-900">
-                            {item.name}
+                            {item?.product?.name}
                           </h3>
                           <p className="text-[#B73B45] font-bold mt-1">
-                            ${item.price.toFixed(2)}
+                            ${item?.product?.price.toFixed(2)}
                           </p>
                         </div>
 
@@ -173,7 +208,7 @@ export default function Cart() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
+                              updateQuantity(item.productId, item.quantity - 1)
                             }
                             className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200"
                           >
@@ -181,14 +216,17 @@ export default function Cart() {
                           </motion.button>
 
                           <span className="w-8 text-center font-medium">
-                            {item.quantity}
+                            {item?.quantity}
                           </span>
 
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
+                              updateQuantity(
+                                item?.productId,
+                                item?.quantity + 1
+                              )
                             }
                             className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200"
                           >
@@ -200,7 +238,7 @@ export default function Cart() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item?.product?.id)}
                           className="ml-2 text-gray-400 hover:text-[#B73B45]"
                         >
                           <Trash2 className="h-5 w-5" />
@@ -226,20 +264,20 @@ export default function Cart() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium">₹{subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">
-                      {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}
                     </span>
                   </div>
 
                   <div className="border-t border-gray-100 pt-4 flex justify-between">
                     <span className="font-bold text-gray-900">Total</span>
                     <span className="font-bold text-[#B73B45]">
-                      ${total.toFixed(2)}
+                      ₹{total.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -255,7 +293,7 @@ export default function Cart() {
                     </motion.button>
                   </Link>
 
-                  <Link href="/products">
+                  <Link href="/category">
                     <motion.button
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
@@ -269,7 +307,7 @@ export default function Cart() {
                 {subtotal < 100 && (
                   <div className="mt-6 p-4 bg-[#F0E6E8] rounded-xl text-sm">
                     <p className="text-[#8A2A33]">
-                      Add ${(100 - subtotal).toFixed(2)} more to qualify for
+                      Add ₹{(100 - subtotal).toFixed(2)} more to qualify for
                       free shipping!
                     </p>
                   </div>

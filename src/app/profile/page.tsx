@@ -1,41 +1,43 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useProfile } from "@/hooks/queries/useProfile";
+import { formatDateTime } from "@/utils/dateAndTime";
 
 // Define types based on your Prisma schema
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "ADMIN" | "CUSTOMER";
-  createdAt: Date;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   role: "ADMIN" | "CUSTOMER";
+//   createdAt: Date;
+// }
 
-interface Address {
-  id: string;
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  isDefault: boolean;
-  phone: string;
-}
+// interface Address {
+//   id: string;
+//   street: string;
+//   city: string;
+//   state: string;
+//   postalCode: string;
+//   country: string;
+//   isDefault: boolean;
+//   phone: string;
+// }
 
-interface Order {
-  id: string;
-  totalAmount: number;
-  status:
-    | "PENDING"
-    | "PROCESSING"
-    | "SHIPPED"
-    | "DELIVERED"
-    | "CANCELLED"
-    | "RETURNED"
-    | "REFUNDED";
-  createdAt: Date;
-  items: OrderItem[];
-}
+// interface Order {
+//   id: string;
+//   totalAmount: number;
+//   status:
+//     | "PENDING"
+//     | "PROCESSING"
+//     | "SHIPPED"
+//     | "DELIVERED"
+//     | "CANCELLED"
+//     | "RETURNED"
+//     | "REFUNDED";
+//   createdAt: Date;
+//   items: OrderItem[];
+// }
 
 interface OrderItem {
   id: string;
@@ -44,10 +46,17 @@ interface OrderItem {
   price: number;
   total: number;
   productName: string;
+  createdAt: string;
+  status: string;
+  items: OrderItem[];
+  totalAmount: number;
 }
 
 export default function ProfilePage() {
-  // Animation variants
+  const { data, isLoading } = useProfile();
+
+  console.log(data);
+
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.6 } },
@@ -73,108 +82,108 @@ export default function ProfilePage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Mock data - this would come from API in a real app
-  const [user] = useState<User>({
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    role: "CUSTOMER",
-    createdAt: new Date("2023-15-09"),
-  });
+  // const [user] = useState<User>({
+  //   id: "1",
+  //   name: "Sarah Johnson",
+  //   email: "sarah@example.com",
+  //   role: "CUSTOMER",
+  //   createdAt: new Date("2023-15-09"),
+  // });
 
-  const [addresses] = useState<Address[]>([
-    {
-      id: "1",
-      street: "123 Crystal Lane",
-      city: "Serenity",
-      state: "CA",
-      postalCode: "94123",
-      country: "United States",
-      isDefault: true,
-      phone: "555-123-4567",
-    },
-    {
-      id: "2",
-      street: "45 Harmony Road",
-      city: "Blissful",
-      state: "OR",
-      postalCode: "97401",
-      country: "United States",
-      isDefault: false,
-      phone: "555-987-6543",
-    },
-  ]);
+  // const [addresses] = useState<Address[]>([
+  //   {
+  //     id: "1",
+  //     street: "123 Crystal Lane",
+  //     city: "Serenity",
+  //     state: "CA",
+  //     postalCode: "94123",
+  //     country: "United States",
+  //     isDefault: true,
+  //     phone: "555-123-4567",
+  //   },
+  //   {
+  //     id: "2",
+  //     street: "45 Harmony Road",
+  //     city: "Blissful",
+  //     state: "OR",
+  //     postalCode: "97401",
+  //     country: "United States",
+  //     isDefault: false,
+  //     phone: "555-987-6543",
+  //   },
+  // ]);
 
-  const [orders] = useState<Order[]>([
-    {
-      id: "ord_12345",
-      totalAmount: 148.0,
-      status: "DELIVERED",
-      createdAt: new Date("2025-02-15"),
-      items: [
-        {
-          id: "item_1",
-          productId: "prod_1",
-          quantity: 1,
-          price: 68.0,
-          total: 68.0,
-          productName: "Amethyst Tower",
-        },
-        {
-          id: "item_2",
-          productId: "prod_3",
-          quantity: 1,
-          price: 42.0,
-          total: 42.0,
-          productName: "Rose Quartz Cluster",
-        },
-        {
-          id: "item_3",
-          productId: "prod_4",
-          quantity: 1,
-          price: 38.0,
-          total: 38.0,
-          productName: "Selenite Wand",
-        },
-      ],
-    },
-    {
-      id: "ord_12346",
-      totalAmount: 55.0,
-      status: "PROCESSING",
-      createdAt: new Date("2025-03-08"),
-      items: [
-        {
-          id: "item_4",
-          productId: "prod_2",
-          quantity: 1,
-          price: 55.0,
-          total: 55.0,
-          productName: "Clear Quartz Point",
-        },
-      ],
-    },
-  ]);
+  // const [orders] = useState<Order[]>([
+  //   {
+  //     id: "ord_12345",
+  //     totalAmount: 148.0,
+  //     status: "DELIVERED",
+  //     createdAt: new Date("2025-02-15"),
+  //     items: [
+  //       {
+  //         id: "item_1",
+  //         productId: "prod_1",
+  //         quantity: 1,
+  //         price: 68.0,
+  //         total: 68.0,
+  //         productName: "Amethyst Tower",
+  //       },
+  //       {
+  //         id: "item_2",
+  //         productId: "prod_3",
+  //         quantity: 1,
+  //         price: 42.0,
+  //         total: 42.0,
+  //         productName: "Rose Quartz Cluster",
+  //       },
+  //       {
+  //         id: "item_3",
+  //         productId: "prod_4",
+  //         quantity: 1,
+  //         price: 38.0,
+  //         total: 38.0,
+  //         productName: "Selenite Wand",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: "ord_12346",
+  //     totalAmount: 55.0,
+  //     status: "PROCESSING",
+  //     createdAt: new Date("2025-03-08"),
+  //     items: [
+  //       {
+  //         id: "item_4",
+  //         productId: "prod_2",
+  //         quantity: 1,
+  //         price: 55.0,
+  //         total: 55.0,
+  //         productName: "Clear Quartz Point",
+  //       },
+  //     ],
+  //   },
+  // ]);
 
-  const [wishlistItems] = useState([
-    {
-      id: "1",
-      name: "Black Tourmaline Bracelet",
-      properties: "Root Chakra • Protection",
-      price: 45.0,
-    },
-    {
-      id: "2",
-      name: "Citrine Cluster",
-      properties: "Solar Plexus • Abundance",
-      price: 78.0,
-    },
-    {
-      id: "3",
-      name: "Labradorite Palm Stone",
-      properties: "Third Eye • Intuition",
-      price: 32.0,
-    },
-  ]);
+  // const [wishlistItems] = useState([
+  //   {
+  //     id: "1",
+  //     name: "Black Tourmaline Bracelet",
+  //     properties: "Root Chakra • Protection",
+  //     price: 45.0,
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Citrine Cluster",
+  //     properties: "Solar Plexus • Abundance",
+  //     price: 78.0,
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Labradorite Palm Stone",
+  //     properties: "Third Eye • Intuition",
+  //     price: 32.0,
+  //   },
+  // ]);
 
   // Simulate data loading
   useEffect(() => {
@@ -198,6 +207,8 @@ export default function ProfilePage() {
     }
   };
 
+  if (isLoading) return "";
+
   return (
     <div className="bg-[#F7F3F4] min-h-screen">
       {/* Profile Header */}
@@ -214,12 +225,12 @@ export default function ProfilePage() {
           >
             <div className="w-16 h-16 rounded-full bg-[#F0E6E8] flex items-center justify-center">
               <span className="text-[#B73B45] text-2xl font-bold">
-                {user.name.charAt(0)}
+                {data?.name.charAt(0)}
               </span>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">{user.name}</h1>
-              <p className="text-white/80">{user.email}</p>
+              <h1 className="text-2xl md:text-3xl font-bold">{data?.name}</h1>
+              <p className="text-white/80 break-words">{data?.email}</p>
             </div>
           </motion.div>
 
@@ -251,7 +262,7 @@ export default function ProfilePage() {
             >
               Orders
             </motion.button>
-            <motion.button
+            {/* <motion.button
               variants={slideUp}
               whileHover={{ y: -3 }}
               onClick={() => setActiveTab("addresses")}
@@ -274,7 +285,7 @@ export default function ProfilePage() {
               }`}
             >
               Wishlist
-            </motion.button>
+            </motion.button> */}
           </motion.div>
         </div>
       </motion.section>
@@ -304,26 +315,26 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Name</p>
-                  <p className="text-gray-800">{user.name}</p>
+                  <p className="text-gray-800">{data?.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-gray-800">{user.email}</p>
+                  <p className="text-gray-800 break-words">{data?.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Member Since</p>
                   <p className="text-gray-800">
-                    {user.createdAt.toLocaleDateString()}
+                    {formatDateTime(data?.createdAt)}
                   </p>
                 </div>
               </div>
-              <motion.button
+              {/* <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 className="mt-4 px-4 py-2 bg-[#F0E6E8] text-[#B73B45] rounded-lg font-medium hover:bg-[#E0C9CD] transition-colors"
               >
                 Edit Profile
-              </motion.button>
+              </motion.button> */}
             </motion.div>
 
             <motion.div
@@ -333,35 +344,35 @@ export default function ProfilePage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Recent Orders
               </h2>
-              {orders.length > 0 ? (
+              {data?.orders.length > 0 ? (
                 <div className="space-y-4">
-                  {orders.slice(0, 2).map((order) => (
+                  {data?.orders?.slice(0, 2).map((order: OrderItem) => (
                     <div
-                      key={order.id}
+                      key={order?.id}
                       className="border border-gray-100 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium">
-                            Order #{order.id.substring(4)}
+                            Order #{order?.id?.substring(4)}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {order.createdAt.toLocaleDateString()}
+                            {formatDateTime(order?.createdAt)}
                           </p>
                         </div>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            order.status
+                            order?.status
                           )}`}
                         >
-                          {order.status}
+                          {order?.status}
                         </span>
                       </div>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          {order.items.length}{" "}
-                          {order.items.length === 1 ? "item" : "items"} • $
-                          {order.totalAmount.toFixed(2)}
+                          {order?.items?.length}{" "}
+                          {order?.items?.length === 1 ? "item" : "items"} • ₹
+                          {order?.totalAmount?.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -370,7 +381,7 @@ export default function ProfilePage() {
               ) : (
                 <p className="text-gray-500">No orders yet</p>
               )}
-              {orders.length > 0 && (
+              {data?.orders.length > 0 && (
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
@@ -382,7 +393,7 @@ export default function ProfilePage() {
               )}
             </motion.div>
 
-            <motion.div
+            {/* <motion.div
               variants={slideUp}
               className="bg-white rounded-xl shadow-md p-6"
             >
@@ -418,7 +429,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </motion.div> */}
           </motion.div>
         )}
 
@@ -437,11 +448,11 @@ export default function ProfilePage() {
               Your Orders
             </motion.h2>
 
-            {orders.length > 0 ? (
+            {data?.orders.length > 0 ? (
               <motion.div variants={staggeredContainer} className="space-y-6">
-                {orders.map((order) => (
+                {data?.orders.map((order: OrderItem) => (
                   <motion.div
-                    key={order.id}
+                    key={order?.id}
                     variants={slideUp}
                     className="bg-white rounded-xl shadow-md overflow-hidden"
                   >
@@ -449,31 +460,31 @@ export default function ProfilePage() {
                       <div className="flex flex-wrap justify-between items-center gap-4">
                         <div>
                           <p className="font-bold text-lg">
-                            Order #{order.id.substring(4)}
+                            Order #{order?.id?.substring(4)}
                           </p>
                           <p className="text-gray-500">
-                            {order.createdAt.toLocaleDateString()}
+                            {formatDateTime(order?.createdAt)}
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              order.status
+                              order?.status
                             )}`}
                           >
-                            {order.status}
+                            {order?.status}
                           </span>
                           <p className="font-bold">
-                            ${order.totalAmount.toFixed(2)}
+                            ₹{order?.totalAmount?.toFixed(2)}
                           </p>
                         </div>
                       </div>
                     </div>
 
                     <div className="px-6 py-4 space-y-4">
-                      {order.items.map((item) => (
+                      {order?.items?.map((item) => (
                         <div
-                          key={item.id}
+                          key={item?.id}
                           className="flex justify-between items-center py-2"
                         >
                           <div className="flex items-center gap-4">
@@ -481,14 +492,14 @@ export default function ProfilePage() {
                               <div className="w-6 h-6 rounded-full bg-[#D6A0A8]"></div>
                             </div>
                             <div>
-                              <p className="font-medium">{item.productName}</p>
+                              <p className="font-medium">{item?.productName}</p>
                               <p className="text-sm text-gray-500">
-                                Qty: {item.quantity}
+                                Qty: {item?.quantity}
                               </p>
                             </div>
                           </div>
                           <p className="font-medium">
-                            ${item.price.toFixed(2)}
+                            ₹{item?.price?.toFixed(2)}
                           </p>
                         </div>
                       ))}
@@ -502,7 +513,7 @@ export default function ProfilePage() {
                       >
                         Track Order
                       </motion.button>
-                      {order.status === "DELIVERED" && (
+                      {order?.status === "DELIVERED" && (
                         <motion.button
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.98 }}
@@ -526,23 +537,24 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-medium text-gray-900">
                   No orders yet
                 </h3>
-                <p className="text-gray-500 mt-2">
+                <p className="text-gray-500 mt-2 mb-8">
                   Start exploring our crystal collection
                 </p>
-                <motion.button
+                <motion.a
+                  href="/category"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   className="mt-4 px-6 py-2 bg-[#B73B45] text-white rounded-lg font-medium hover:bg-[#8A2A33] transition-colors"
                 >
                   Shop Now
-                </motion.button>
+                </motion.a>
               </motion.div>
             )}
           </motion.div>
         )}
 
         {/* Addresses Tab */}
-        {activeTab === "addresses" && (
+        {/* {activeTab === "addresses" && (
           <motion.div
             variants={staggeredContainer}
             initial="hidden"
@@ -617,10 +629,10 @@ export default function ProfilePage() {
               ))}
             </motion.div>
           </motion.div>
-        )}
+        )} */}
 
         {/* Wishlist Tab */}
-        {activeTab === "wishlist" && (
+        {/* {activeTab === "wishlist" && (
           <motion.div
             variants={staggeredContainer}
             initial="hidden"
@@ -653,7 +665,7 @@ export default function ProfilePage() {
                       <h3 className="font-bold text-gray-900">{item.name}</h3>
                       <p className="text-gray-600 mt-1">{item.properties}</p>
                       <p className="text-[#B73B45] font-bold mt-3">
-                        ${item.price.toFixed(2)}
+                        ₹{item.price.toFixed(2)}
                       </p>
 
                       <div className="mt-4 flex gap-3">
@@ -700,7 +712,7 @@ export default function ProfilePage() {
               </motion.div>
             )}
           </motion.div>
-        )}
+        )} */}
       </motion.section>
 
       {/* Crystal Energy Banner */}
@@ -719,17 +731,18 @@ export default function ProfilePage() {
               <h3 className="text-2xl font-bold text-[#B73B45]">
                 Enhance your crystal journey
               </h3>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 mb-10">
                 Your crystal collection is carefully curated to balance your
                 energy and enhance your spiritual path.
               </p>
-              <motion.button
+              <motion.a
+                href="/category"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="mt-6 px-6 py-3 bg-[#B73B45] text-white rounded-full font-medium shadow-md hover:bg-[#8A2A33] transition-colors"
+                className="mt-6 px-6 py-3 bg-[#B73B45] text-white rounded-full font-medium shadow-md hover:bg-[#8A2A33] transition-colors whitespace-nowrap text-sm lg:text-base"
               >
                 DISCOVER YOUR CRYSTAL
-              </motion.button>
+              </motion.a>
             </div>
           </div>
         </div>

@@ -56,7 +56,7 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
       // Show toasts for each error
       // Object.entries(errorData).forEach(([, messages]) => {
       //   messages.forEach((msg) => {
-      //     toast.error(`${msg}`);
+      //     toast.error(`₹{msg}`);
       //   });
       // });
 

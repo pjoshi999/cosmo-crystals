@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { useAppStore } from "@/hooks/hooks";
 import { signupService } from "@/lib/features/authSlice";
+import { PendingCartAction } from "@/types";
 
 export default function Register() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
+  const [pendingCartAction, setPendingCartAction] =
+    useState<PendingCartAction | null>(null);
 
   // Animation variants
   const pageVariants = {
@@ -45,6 +48,19 @@ export default function Register() {
       },
     },
   };
+
+  // Check for pending cart actions
+  useEffect(() => {
+    const pendingAction = localStorage.getItem("cartPendingAction");
+    if (pendingAction) {
+      try {
+        setPendingCartAction(JSON.parse(pendingAction));
+      } catch (e) {
+        console.error("Error parsing pending cart action", e);
+        localStorage.removeItem("cartPendingAction");
+      }
+    }
+  }, []);
 
   interface FormData {
     name: string;
@@ -112,6 +128,13 @@ export default function Register() {
       );
 
       if (signupService.fulfilled.match(resultAction)) {
+        // Check if there was a pending cart action
+        if (pendingCartAction) {
+          // Log the pending action (you'd implement actual cart addition here)
+          console.log(
+            `Processing pending action: Adding ${pendingCartAction.quantity} of ${pendingCartAction.productName} to cart`
+          );
+        }
         router.push(`/`);
       }
     } catch {
@@ -147,7 +170,13 @@ export default function Register() {
               Create Account
             </h2>
             <p className="text-center text-gray-600 mb-8">
-              Join the Cosmo Crystals community
+              Become a part of the Cosmo Crystals community!
+              {/* {pendingCartAction && (
+                <span className="block mt-2 text-sm text-[#B73B45]">
+                  Create an account to add {pendingCartAction.quantity}{" "}
+                  {pendingCartAction.productName} to your cart
+                </span>
+              )} */}
             </p>
           </motion.div>
 
@@ -163,40 +192,7 @@ export default function Register() {
           )}
 
           <div className="mb-8">
-            {/* <div className="flex items-center">
-              <motion.div
-                className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  step >= 1
-                    ? "bg-[#B73B45] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-                animate={{
-                  backgroundColor: step >= 1 ? "#B73B45" : "#e5e7eb",
-                  color: step >= 1 ? "#ffffff" : "#4b5563",
-                }}
-              >
-                1
-              </motion.div>
-              <motion.div
-                className={`flex-1 h-1 mx-2 ${
-                  step >= 2 ? "bg-[#B73B45]" : "bg-gray-200"
-                }`}
-                animate={{ backgroundColor: step >= 2 ? "#B73B45" : "#e5e7eb" }}
-              ></motion.div>
-              <motion.div
-                className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  step >= 2
-                    ? "bg-[#B73B45] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-                animate={{
-                  backgroundColor: step >= 2 ? "#B73B45" : "#e5e7eb",
-                  color: step >= 2 ? "#ffffff" : "#4b5563",
-                }}
-              >
-                2
-              </motion.div>
-            </div> */}
+            {/* Step indicators removed for simplicity */}
           </div>
 
           {step === 1 && (
@@ -224,7 +220,7 @@ export default function Register() {
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none transition-all"
-                    placeholder="John Doe"
+                    placeholder="Enter Full Name"
                   />
                 </motion.div>
 
@@ -244,7 +240,7 @@ export default function Register() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none transition-all"
-                    placeholder="your@email.com"
+                    placeholder="Enter Email Address"
                   />
                 </motion.div>
 

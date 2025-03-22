@@ -127,15 +127,15 @@ const ProductCard: React.FC<{ product?: Product }> = ({ product }) => {
             {hasDiscount ? (
               <>
                 <span className="font-bold text-lg">
-                  ${productData.salePrice.toFixed(2)}
+                  ₹{productData.salePrice.toFixed(2)}
                 </span>
                 <span className="text-gray-500 text-sm line-through">
-                  ${productData.price.toFixed(2)}
+                  ₹{productData.price.toFixed(2)}
                 </span>
               </>
             ) : (
               <span className="font-bold text-lg">
-                ${productData.price.toFixed(2)}
+                ₹{productData.price.toFixed(2)}
               </span>
             )}
           </div>

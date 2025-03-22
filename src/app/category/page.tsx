@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, Suspense, useEffect, use } from "react";
-// import { useSearchParams } from "next/navigation";
+import { useState, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { X, SlidersHorizontal } from "lucide-react";
 import { useCategory } from "@/hooks/queries/useCategories";
 import { useProducts } from "@/hooks/queries/useProducts";
-import { Category } from "@/types";
+import { Category, SubCategory } from "@/types";
+import Image from "next/image";
 
-// Types based on your Prisma schema
 interface Product {
   id: string;
   name: string;
@@ -18,7 +17,7 @@ interface Product {
   salePrice: number;
   stock: number;
   categoryId: string;
-  subcategory?: string;
+  subCategory?: SubCategory;
   images: {
     id: string;
     url: string;
@@ -39,17 +38,9 @@ interface Product {
 //   image?: string;
 // }
 
-export default function CategoryPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
-
+export default function CategoryPage() {
   const { data: categoryData, isLoading: categoryLoading } = useCategory();
   const { data: productData, isLoading: productLoading } = useProducts();
-
-  console.log(categoryData, productData);
 
   // State for products and filters
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,149 +48,48 @@ export default function CategoryPage({
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [0, 500],
+    priceRange: [500, 2000],
     attributes: [] as string[],
     sort: "newest",
   });
 
   console.log(filtersApplied);
 
-  // Sample categories data - in production you'd fetch these
-  // const categories: Category[] = [
-  //   {
-  //     id: "1",
-  //     name: "Healing",
-  //     slug: "healing",
-  //     description: "Crystals for healing and wellness",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Protection",
-  //     slug: "protection",
-  //     description: "Crystals for protection and safety",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Meditation",
-  //     slug: "meditation",
-  //     description: "Crystals for meditation and mindfulness",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Rings",
-  //     slug: "rings",
-  //     description: "Crystal rings for everyday wear",
-  //   },
-  // ];
-
-  // Sample products data - in production you'd fetch these based on category
-  // const sampleProducts: Product[] = [
-  //   {
-  //     id: "1",
-  //     name: "Rose Quartz Crystal",
-  //     description: "A beautiful rose quartz crystal for love and healing",
-  //     price: 45,
-  //     salePrice: 39.99,
-  //     stock: 10,
-  //     categoryId: "1",
-  //     images: [
-  //       {
-  //         id: "1",
-  //         url: "/images/rose-quartz.jpg",
-  //         alt: "Rose Quartz",
-  //         isMain: true,
-  //       },
-  //     ],
-  //     attributes: [
-  //       { name: "Crystal Type", value: "Rose Quartz" },
-  //       { name: "Chakra", value: "Heart" },
-  //     ],
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Amethyst Cluster",
-  //     description: "Natural amethyst cluster for spiritual growth",
-  //     price: 60,
-  //     salePrice: 60,
-  //     stock: 5,
-  //     categoryId: "1",
-  //     subcategory: "clusters",
-  //     images: [
-  //       {
-  //         id: "2",
-  //         url: "/images/amethyst.jpg",
-  //         alt: "Amethyst Cluster",
-  //         isMain: true,
-  //       },
-  //     ],
-  //     attributes: [
-  //       { name: "Crystal Type", value: "Amethyst" },
-  //       { name: "Chakra", value: "Crown" },
-  //     ],
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Black Tourmaline",
-  //     description: "Protective black tourmaline crystal",
-  //     price: 35,
-  //     salePrice: 29.99,
-  //     stock: 15,
-  //     categoryId: "2",
-  //     images: [
-  //       {
-  //         id: "3",
-  //         url: "/images/black-tourmaline.jpg",
-  //         alt: "Black Tourmaline",
-  //         isMain: true,
-  //       },
-  //     ],
-  //     attributes: [
-  //       { name: "Crystal Type", value: "Black Tourmaline" },
-  //       { name: "Chakra", value: "Root" },
-  //     ],
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Clear Quartz Point",
-  //     description: "Clear quartz point for energy amplification",
-  //     price: 25,
-  //     salePrice: 25,
-  //     stock: 20,
-  //     categoryId: "3",
-  //     images: [
-  //       {
-  //         id: "4",
-  //         url: "/images/clear-quartz.jpg",
-  //         alt: "Clear Quartz Point",
-  //         isMain: true,
-  //       },
-  //     ],
-  //     attributes: [
-  //       { name: "Crystal Type", value: "Clear Quartz" },
-  //       { name: "Chakra", value: "All" },
-  //     ],
-  //   },
-  // ];
-
   useEffect(() => {
-    // In production, fetch products based on category from your API
-    // setIsLoading(true);
-
-    // Find the category based on slug
     const foundCategory = categoryData?.categories.find(
-      (cat: Category) => cat.slug === (slug || "")
+      (cat: Category) => cat.slug === ""
     );
     setCategory(foundCategory || null);
 
-    // Filter products by category (simulating API response)
     const filteredProducts = foundCategory
       ? productData?.products.filter(
           (product: Product) => product?.categoryId === foundCategory?.id
         )
       : productData?.products;
 
-    setProducts(filteredProducts);
-  }, [slug, categoryData, productData]);
+    const filteredByPrice = filteredProducts?.filter(
+      (product: Product) =>
+        product.salePrice >= filtersApplied.priceRange[0] &&
+        product.salePrice <= filtersApplied.priceRange[1]
+    );
+
+    // console.log("filteredByPrice", filteredByPrice);
+
+    const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
+      return filtersApplied.attributes.some((attr) => {
+        // console.log(attr, product.subCategory?.name);
+        return product.subCategory?.name === attr;
+      });
+    });
+
+    console.log("filteredByAttributes", filteredByAttributes);
+
+    if (filtersApplied.attributes.length > 0) {
+      setProducts(filteredByAttributes);
+    } else {
+      setProducts(filteredByPrice);
+    }
+  }, [categoryData, productData, filtersApplied]);
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -216,19 +106,26 @@ export default function CategoryPage({
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  // Function to handle applying filters
-  const applyFilters = () => {
-    // In production, you would refetch products with the new filters
-    // For now, we'll just close the filter panel
-    setFilterOpen(false);
+  const handleCheckHandler = (value: string) => {
+    if (filtersApplied.attributes.includes(value)) {
+      setFiltersApplied({
+        ...filtersApplied,
+        attributes: filtersApplied.attributes.filter((attr) => attr !== value), // Remove the value from the array
+      });
+    } else {
+      setFiltersApplied({
+        ...filtersApplied,
+        attributes: [...filtersApplied.attributes, value],
+      });
+    }
   };
 
   if (categoryLoading || productLoading) {
-    return "Loading..";
+    return <div className="min-h-[80vh] bg-[#F7F3F4]">Loading..</div>;
   }
 
   return (
-    <Suspense fallback="Loading...">
+    <Suspense fallback="Loading..">
       <div className="bg-[#F7F3F4] min-h-screen">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
@@ -240,16 +137,17 @@ export default function CategoryPage({
           >
             <div className="flex items-center text-sm text-gray-500">
               <Link href="/" className="hover:text-[#B73B45]">
-                Home
+                Home /
               </Link>
               {category ? (
-                <span className="text-[#B73B45] font-medium">
-                  {category.name}
+                <span className="text-[#B73B45] font-medium capitalize">
+                  &nbsp;{category?.name?.replaceAll("-", " ")}
                 </span>
               ) : (
-                <span className="text-[#B73B45] font-medium">All Crystals</span>
+                <span className="text-[#B73B45] font-medium">
+                  &nbsp;All Crystals
+                </span>
               )}
-              <span className="text-[#B73B45] font-medium">All Crystals</span>
             </div>
           </motion.div>
 
@@ -282,7 +180,7 @@ export default function CategoryPage({
                 <span>Filters</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Sort by:</span>
                 <select
                   className="bg-white px-3 py-2 rounded-lg shadow-sm text-sm"
@@ -298,13 +196,13 @@ export default function CategoryPage({
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                 </select>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* Filter Sidebar - Mobile Overlay */}
             {filterOpen && (
               <motion.div
-                className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+                className="fixed inset-0 backdrop-blur-sm bg-opacity-50 z-40 lg:hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -341,8 +239,8 @@ export default function CategoryPage({
                 <div className="px-2">
                   <input
                     type="range"
-                    min="0"
-                    max="500"
+                    min="500"
+                    max="2000"
                     value={filtersApplied.priceRange[1]}
                     onChange={(e) =>
                       setFiltersApplied({
@@ -356,79 +254,47 @@ export default function CategoryPage({
                     className="w-full accent-[#B73B45]"
                   />
                   <div className="flex justify-between text-sm text-gray-600 mt-2">
-                    <span>${filtersApplied.priceRange[0]}</span>
-                    <span>${filtersApplied.priceRange[1]}</span>
+                    <span>₹{filtersApplied.priceRange[0]}</span>
+                    <span>₹{filtersApplied.priceRange[1]}</span>
                   </div>
                 </div>
               </div>
 
               {/* Crystal Types */}
               <div className="mb-6">
-                <h3 className="text-md font-medium mb-3">Crystal Type</h3>
-                <div className="space-y-2">
-                  {[
-                    "Rose Quartz",
-                    "Amethyst",
-                    "Clear Quartz",
-                    "Black Tourmaline",
-                    "Selenite",
-                  ].map((type) => (
-                    <div key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`type-${type}`}
-                        className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
-                      />
-                      <label
-                        htmlFor={`type-${type}`}
-                        className="ml-2 text-sm text-gray-600"
-                      >
-                        {type}
-                      </label>
+                {categoryData?.categories?.map(
+                  (category: Category, index: number) => (
+                    <div
+                      className={`${index !== 0 && "pt-5"}`}
+                      key={category?.id}
+                    >
+                      <h3 className="text-md font-medium mb-3 capitalize">
+                        {category?.name?.replaceAll("-", " ")}
+                      </h3>
+                      <div className="space-y-2">
+                        {category?.subCategory.map((sub: SubCategory) => (
+                          <div key={sub?.id} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`type-${sub?.name}`}
+                              className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
+                              checked={filtersApplied.attributes.includes(
+                                sub?.name
+                              )}
+                              onChange={() => handleCheckHandler(sub?.name)}
+                            />
+                            <label
+                              htmlFor={`type-${sub?.name}`}
+                              className="ml-2 text-sm text-gray-600 capitalize"
+                            >
+                              {sub?.name?.replaceAll("-", " ")}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Chakras */}
-              <div className="mb-6">
-                <h3 className="text-md font-medium mb-3">Chakra</h3>
-                <div className="space-y-2">
-                  {[
-                    "Root",
-                    "Sacral",
-                    "Solar Plexus",
-                    "Heart",
-                    "Throat",
-                    "Third Eye",
-                    "Crown",
-                    "All",
-                  ].map((chakra) => (
-                    <div key={chakra} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`chakra-${chakra}`}
-                        className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
-                      />
-                      <label
-                        htmlFor={`chakra-${chakra}`}
-                        className="ml-2 text-sm text-gray-600"
-                      >
-                        {chakra}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Apply Filters Button - Mobile only */}
-              <div className="mt-8 lg:hidden">
-                <button
-                  onClick={applyFilters}
-                  className="w-full bg-[#B73B45] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#8A2A33] transition-colors"
-                >
-                  Apply Filters
-                </button>
+                  )
+                )}
               </div>
             </motion.div>
 
@@ -442,29 +308,9 @@ export default function CategoryPage({
               >
                 <p className="text-sm text-gray-500">
                   Showing{" "}
-                  <span className="font-medium">
-                    {productData?.products?.length}
-                  </span>{" "}
+                  <span className="font-medium">{products?.length}</span>{" "}
                   products
                 </p>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Sort by:</span>
-                  <select
-                    className="bg-white px-3 py-2 rounded-lg shadow-sm text-sm"
-                    value={filtersApplied.sort}
-                    onChange={(e) =>
-                      setFiltersApplied({
-                        ...filtersApplied,
-                        sort: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                  </select>
-                </div>
               </motion.div>
 
               {/* Loading State */}
@@ -537,10 +383,28 @@ export default function CategoryPage({
                               className="block"
                             >
                               <div className="relative h-48 md:h-56 lg:h-64 bg-[#F0E6E8]">
-                                {/* This would be your actual image component in production */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-24 h-24 rounded-full bg-[#D6A0A8] opacity-70"></div>
-                                </div>
+                                {product.images.length > 0 ? (
+                                  product.images[0].url && (
+                                    <Image
+                                      src={
+                                        product.images
+                                          .map((img) =>
+                                            img.isMain ? img.url : undefined
+                                          )
+                                          .filter(
+                                            (url) => url !== undefined
+                                          )[0] || product.images[0].url
+                                      }
+                                      alt="Product Image"
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  )
+                                ) : (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-24 h-24 rounded-full bg-[#D6A0A8] opacity-70"></div>
+                                  </div>
+                                )}
                               </div>
 
                               <div className="p-4">
@@ -556,11 +420,11 @@ export default function CategoryPage({
                                 </p>
                                 <div className="mt-3 flex items-center">
                                   <span className="text-lg font-bold text-[#B73B45]">
-                                    ${product?.salePrice?.toFixed(2)}
+                                    ₹{product?.salePrice?.toFixed(2)}
                                   </span>
                                   {product.salePrice < product.price && (
                                     <span className="ml-2 text-sm text-gray-400 line-through">
-                                      ${product?.price?.toFixed(2)}
+                                      ₹{product?.price?.toFixed(2)}
                                     </span>
                                   )}
                                 </div>

@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import Head from "next/head";
 import { motion } from "framer-motion";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { useCategory } from "@/hooks/queries/useCategories";
 import { useProducts } from "@/hooks/queries/useProducts";
+import Hero from "@/components/home/Hero";
+import Image from "next/image";
 
 export type User = {
   id: string;
@@ -181,18 +182,9 @@ export default function Home() {
     <>
       <Header />
       <div className="bg-[#F7F3F4] min-h-screen">
-        <Head>
-          <title>Cosmo Crystals | Spiritual Healing Crystals</title>
-          <meta
-            name="description"
-            content="Ethically sourced crystals for spiritual awakening and healing"
-          />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
         <main>
           {/* Hero Section */}
-          <section className="bg-[#F0E6E8] py-16 md:py-24">
+          <section className="lg:bg-[#F0E6E8] py-16 md:py-24 lg:block hidden">
             <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
               <motion.div
                 initial="hidden"
@@ -206,17 +198,21 @@ export default function Home() {
                 >
                   Discover the cosmic energy within
                 </motion.h2>
-                <motion.p variants={slideUp} className="text-lg text-gray-600">
+                <motion.p
+                  variants={slideUp}
+                  className="text-lg text-gray-600 pb-5"
+                >
                   Ethically sourced crystals for spiritual awakening
                 </motion.p>
-                <motion.button
+                <motion.a
+                  href="/categories"
                   variants={slideUp}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-[#B73B45] text-white px-8 py-3 rounded-full font-medium tracking-wide shadow-md hover:shadow-lg transition-all"
                 >
                   EXPLORE
-                </motion.button>
+                </motion.a>
               </motion.div>
 
               <motion.div
@@ -227,17 +223,27 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="relative h-80 md:h-96 lg:h-[450px] rounded-2xl overflow-hidden"
               >
-                <div className="absolute inset-0 bg-[#E0C9CD] rounded-2xl">
-                  <div className="absolute top-1/4 left-1/3 w-1/3 h-1/3 bg-[#B73B45] opacity-80 transform -rotate-12"></div>
+                <div className="bg-[#E0C9CD] rounded-2xl">
+                  <Image
+                    src={
+                      "https://res.cloudinary.com/djdiqfkxx/image/upload/v1742599572/rzzwoowuoxzutonxjerh.png"
+                    }
+                    alt=""
+                    fill
+                    className="w-full h-full object-cover"
+                  />
+                  {/* <div className="absolute top-1/4 left-1/3 w-1/3 h-1/3 bg-[#B73B45] opacity-80 transform -rotate-12"></div>
                   <div className="absolute bottom-1/4 right-1/4 w-1/4 h-1/4 rounded-full bg-[#8A2A33] opacity-60"></div>
-                  <div className="absolute top-1/2 left-1/6 w-1/6 h-1/3 rounded-full bg-[#D6A0A8] opacity-70 transform -translate-y-1/2"></div>
+                  <div className="absolute top-1/2 left-1/6 w-1/6 h-1/3 rounded-full bg-[#D6A0A8] opacity-70 transform -translate-y-1/2"></div> */}
                 </div>
               </motion.div>
             </div>
           </section>
 
+          <Hero />
+
           {/* Featured Categories */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 lg:block hidden">
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -258,7 +264,7 @@ export default function Home() {
               >
                 {categoryLoading
                   ? "Loading.."
-                  : categoryData.categories.map((category: Category) => (
+                  : categoryData?.categories.map((category: Category) => (
                       <motion.a
                         href="/category"
                         key={category.id}
@@ -303,7 +309,7 @@ export default function Home() {
               >
                 {productLoading
                   ? "Loading.."
-                  : productData.products.map((product: Product) => (
+                  : productData?.products?.map((product: Product) => (
                       <motion.a
                         href={`/product/${product.id}`}
                         key={product.id}
@@ -312,7 +318,19 @@ export default function Home() {
                         className="bg-white rounded-2xl shadow-md overflow-hidden"
                       >
                         <div className="h-64 bg-[#F0E6E8] relative">
-                          {/* Crystal shape placeholder based on product id */}
+                          <Image
+                            src={
+                              product?.images
+                                .map((img) =>
+                                  img?.isMain ? img?.url : undefined
+                                )
+                                .filter((url) => url !== undefined)[0] ||
+                              product?.images[0]?.url
+                            }
+                            alt="Product Image"
+                            fill
+                            className="object-cover"
+                          />
                           {/* {product.id === 1 && (
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#B73B45] opacity-30"></div>
                           )}
@@ -326,22 +344,22 @@ export default function Home() {
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-24 bg-[#C65A64] opacity-40"></div>
                           )} */}
                         </div>
-                        <div className="p-6">
+                        <div className="px-6 py-3 pb-4">
                           <h3 className="text-lg font-bold text-gray-900">
                             {product.name}
                           </h3>
-                          <p className="text-gray-600 mt-1">
+                          <p className="text-gray-600 mt-1 text-sm">
                             {product.description.length > 50
-                              ? product.description.slice(0, 50)
+                              ? product.description.slice(0, 50) + "..."
                               : product.description}
                           </p>
-                          <div className="flex items-center gap-3 mt-3">
-                            <span className="text-[#B73B45] font-bold">
-                              ${product.salePrice}
+                          <div className="flex items-end gap-3 mt-3">
+                            <span className="text-[#B73B45] font-bold text-lg">
+                              ₹{product.salePrice}
                             </span>
                             {product.salePrice < product.price && (
                               <span className="text-gray-400 line-through">
-                                ${product.price}
+                                ₹{product.price}
                               </span>
                             )}
                           </div>
@@ -363,12 +381,15 @@ export default function Home() {
                 className="md:col-span-3 space-y-6"
               >
                 <h2 className="text-3xl md:text-4xl font-bold">
-                  Unlock the ancient wisdom
+                  Gemstones and Their Benefits
                 </h2>
                 <p className="text-white/90">
-                  Explore our comprehensive crystal guides and tutorials
-                  <br />
-                  to enhance your spiritual journey
+                  Gemstones carry powerful energies that promote balance and
+                  well-being. Amethyst enhances intuition and calmness, while
+                  Rose Quartz nurtures love. Citrine attracts abundance, and
+                  Tiger’s Eye boosts confidence. Black Tourmaline protects
+                  against negativity. Each gemstone holds unique properties,
+                  guiding you toward positivity, healing, and personal growth.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
@@ -420,7 +441,7 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
-                What our community says
+                Hear from our Community
               </motion.h2>
 
               <motion.div
@@ -467,10 +488,12 @@ export default function Home() {
                 <div className="md:flex md:items-center md:justify-between">
                   <div className="mb-6 md:mb-0">
                     <h3 className="text-2xl font-bold text-[#B73B45]">
-                      Join our cosmic community
+                      Join our community for cosmic updates and exclusive
+                      offers!
                     </h3>
                     <p className="text-gray-600 mt-2">
-                      Subscribe for celestial updates and exclusive offers
+                      Stay connected and be the first to discover new arrivals,
+                      special deals, and magical insights!
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">

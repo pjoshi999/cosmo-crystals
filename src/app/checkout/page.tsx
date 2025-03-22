@@ -1,13 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useCart } from "@/hooks/queries/useCart";
+import { Product } from "@/types";
+import { motion } from "motion/react";
 import Link from "next/link";
+import { useCountries } from "@/hooks/queries/useCountries";
+import WhatsAppRedirect from "@/components/home/WhatsappRedirect";
+import Image from "next/image";
 
-// Define types
 interface CartItem {
   id: number;
   name: string;
-  price: number;
+  product: Product;
   quantity: number;
   image: string;
 }
@@ -24,15 +28,42 @@ interface Address {
   phone: string;
 }
 
-interface PaymentMethod {
-  id: string;
-  name: string;
-  last4?: string;
-  icon: string;
+interface ValidationErrors {
+  firstName?: string;
+  lastName?: string;
+  address1?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
 }
 
+interface Country {
+  name: string;
+  code?: string;
+  iso2?: string;
+  iso3?: string;
+}
+
+interface State {
+  name: string;
+  code: string;
+}
+
+// interface PaymentMethod {
+//   id: string;
+//   name: string;
+//   last4?: string;
+//   icon: string;
+// }
+
 export default function Checkout() {
-  // Animation variants
+  const { data, isLoading } = useCart();
+  const { data: countryData, isLoading: countryLoading } = useCountries();
+
+  console.log(countryData);
+
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.6 } },
@@ -53,24 +84,6 @@ export default function Checkout() {
     },
   };
 
-  // Sample cart items
-  const [cartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Rose Quartz Cluster",
-      price: 42,
-      quantity: 1,
-      image: "/images/rose-quartz.jpg",
-    },
-    {
-      id: 3,
-      name: "Clear Quartz Point",
-      price: 55,
-      quantity: 2,
-      image: "/images/clear-quartz.jpg",
-    },
-  ]);
-
   // Form states
   const [address, setAddress] = useState<Address>({
     firstName: "",
@@ -80,46 +93,229 @@ export default function Checkout() {
     city: "",
     state: "",
     postalCode: "",
-    country: "United States",
+    country: "India",
     phone: "",
   });
 
   const [step, setStep] = useState(1); // 1: Info, 2: Shipping, 3: Payment, 4: Review
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [shippingMethod, setShippingMethod] = useState("standard");
-  const [selectedPayment, setSelectedPayment] = useState("card1");
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Location data states
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+
+  // const [shippingMethod, setShippingMethod] = useState("standard");
+  // const [selectedPayment, setSelectedPayment] = useState("card1");
 
   // Payment methods
-  const paymentMethods: PaymentMethod[] = [
-    { id: "card1", name: "Visa", last4: "4242", icon: "visa" },
-    { id: "card2", name: "Mastercard", last4: "8888", icon: "mastercard" },
-    { id: "paypal", name: "PayPal", icon: "paypal" },
-  ];
+  // const paymentMethods: PaymentMethod[] = [
+  //   { id: "card1", name: "Visa", last4: "4242", icon: "visa" },
+  //   { id: "card2", name: "Mastercard", last4: "8888", icon: "mastercard" },
+  //   { id: "paypal", name: "PayPal", icon: "paypal" },
+  // ];
 
-  // Calculate order summary
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const subtotal = data?.reduce(
+    (sum: number, item: CartItem) =>
+      sum + item?.product?.price * item?.quantity,
     0
   );
-  const shipping = shippingMethod === "express" ? 12.99 : 5.99;
-  const tax = subtotal * 0.085;
-  const total = subtotal + shipping + tax;
+  const shipping = subtotal > 100 ? 0 : 99;
+  const total = subtotal + shipping;
 
-  // Handle form changes
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setAddress((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    if (countryData && countryData.data && Array.isArray(countryData.data)) {
+      const formattedCountries = countryData.data.map((country: Country) => ({
+        name: country.name,
+        iso2: country.iso2,
+        iso3: country.iso3,
+      }));
+
+      // Sort countries alphabetically by name
+      formattedCountries.sort((a: Country, b: Country) =>
+        a.name.localeCompare(b.name)
+      );
+
+      setCountries(formattedCountries);
+    } else {
+      // Fallback for development or if API fails
+      setCountries([
+        { name: "United States", iso2: "US" },
+        { name: "Canada", iso2: "CA" },
+        { name: "United Kingdom", iso2: "GB" },
+        { name: "Australia", iso2: "AU" },
+        { name: "India", iso2: "IN" },
+        { name: "Germany", iso2: "DE" },
+        { name: "France", iso2: "FR" },
+      ]);
+    }
+  }, [countryData]);
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      if (!address.country) {
+        setStates([]);
+        return;
+      }
+
+      try {
+        // Find the selected country object
+        const selectedCountry = countryData?.data?.find(
+          (c: Country) => c.name === address.country
+        );
+
+        if (!selectedCountry) {
+          setStates([]);
+          return;
+        }
+
+        // Access the states directly from the selected country
+        const stateData =
+          selectedCountry.states?.map(
+            (state: { name: string; state_code: string }) => ({
+              name: state.name,
+              code: state.state_code,
+            })
+          ) || [];
+
+        // Sort states alphabetically by name
+        stateData.sort((a: State, b: State) => a.name.localeCompare(b.name));
+
+        setStates(stateData);
+      } catch (error) {
+        console.error("Error processing states:", error);
+        setStates([]);
+      }
+    };
+
+    if (address.country && countryData?.data?.length > 0) {
+      fetchStates();
+    }
+  }, [address.country, countryData]);
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors: ValidationErrors = {};
+
+    if (!address.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!address.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    if (!address.address1.trim()) {
+      newErrors.address1 = "Address is required";
+    }
+
+    if (!address.city.trim()) {
+      newErrors.city = "City is required";
+    }
+
+    if (!address.state.trim()) {
+      newErrors.state = "State/Province/Region is required";
+    }
+
+    if (!address.postalCode.trim()) {
+      newErrors.postalCode = "Postal code is required";
+    }
+
+    if (!address.country) {
+      newErrors.country = "Country is required";
+    }
+
+    if (!address.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\+?[0-9\-\s]+$/.test(address.phone)) {
+      newErrors.phone = "Please enter a valid phone number";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real application, you would submit the order here
-    // For now, we'll just move to the next step
-    if (step < 4) {
-      setStep(step + 1);
+  // Handle form changes
+  const handleAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    // If country changes, reset state
+    if (name === "country" && value !== address.country) {
+      setAddress((prev) => ({
+        ...prev,
+        [name]: value,
+        state: "", // Reset state when country changes
+      }));
     } else {
-      // Final submission would go here
-      alert("Thank you for your order!");
+      setAddress((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
+    // Clear the error for this field when user types
+    if (errors[name as keyof ValidationErrors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  // Format phone number with international support
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Allow +, numbers, spaces, and hyphens
+    value = value.replace(/[^\d\s\-+]/g, "");
+
+    setAddress((prev) => ({
+      ...prev,
+      phone: value,
+    }));
+  };
+
+  // API call to save the address
+  const saveAddressToAPI = async () => {
+    try {
+      setSubmitting(true);
+      // Mock API call - in a real app you would call your API here
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Simulating a successful API response
+      console.log("Address saved successfully:", address);
+      return true;
+    } catch (error) {
+      console.error("Error saving address:", error);
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (step === 1) {
+      const isValid = validateForm();
+
+      if (isValid) {
+        const success = await saveAddressToAPI();
+        if (success) {
+          setStep(2);
+        }
+      }
+    } else {
+      // Final submission
+      setSubmitting(true);
+      // Simulate API call for placing the order
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setSubmitting(false);
+      // alert(
+      //   "Thank you for your order! Your order has been placed successfully."
+      // );
     }
   };
 
@@ -158,7 +354,7 @@ export default function Checkout() {
         </motion.div>
 
         {/* Progress bar */}
-        <motion.div
+        {/* <motion.div
           initial="hidden"
           animate={isLoaded ? "visible" : "hidden"}
           variants={fadeIn}
@@ -217,10 +413,10 @@ export default function Checkout() {
               )
             )}
           </div>
-        </motion.div>
+        </motion.div> */}
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Left column - Form */}
+          {/* Left column - Address form */}
           <motion.div
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
@@ -248,7 +444,7 @@ export default function Checkout() {
                           htmlFor="firstName"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          First Name
+                          First Name <span className="text-[#B73B45]">*</span>
                         </label>
                         <input
                           type="text"
@@ -257,15 +453,24 @@ export default function Checkout() {
                           required
                           value={address.firstName}
                           onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                          className={`w-full px-4 py-2 border ${
+                            errors.firstName
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
+                        {errors.firstName && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.firstName}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label
                           htmlFor="lastName"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Last Name
+                          Last Name <span className="text-[#B73B45]">*</span>
                         </label>
                         <input
                           type="text"
@@ -274,8 +479,17 @@ export default function Checkout() {
                           required
                           value={address.lastName}
                           onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                          className={`w-full px-4 py-2 border ${
+                            errors.lastName
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
+                        {errors.lastName && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.lastName}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
 
@@ -284,7 +498,7 @@ export default function Checkout() {
                         htmlFor="address1"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Address
+                        Address <span className="text-[#B73B45]">*</span>
                       </label>
                       <input
                         type="text"
@@ -293,8 +507,15 @@ export default function Checkout() {
                         required
                         value={address.address1}
                         onChange={handleAddressChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                        className={`w-full px-4 py-2 border ${
+                          errors.address1 ? "border-red-500" : "border-gray-300"
+                        } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                       />
+                      {errors.address1 && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {errors.address1}
+                        </p>
+                      )}
                     </motion.div>
 
                     <motion.div variants={slideUp}>
@@ -314,16 +535,186 @@ export default function Checkout() {
                       />
                     </motion.div>
 
+                    <motion.div variants={slideUp}>
+                      <label
+                        htmlFor="country"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Country <span className="text-[#B73B45]">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="country"
+                          name="country"
+                          required
+                          value={address.country}
+                          onChange={handleAddressChange}
+                          disabled={countryLoading}
+                          className={`w-full px-4 py-2 border ${
+                            errors.country
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none bg-white appearance-none pr-10`}
+                        >
+                          <option value="">Select Country</option>
+                          {countries?.map((country: Country, index: number) => (
+                            <option key={index} value={country.name}>
+                              {country.name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          {countryLoading ? (
+                            <svg
+                              className="animate-spin h-5 w-5 text-gray-500"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                          ) : (
+                            <svg
+                              className="fill-current h-4 w-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      {errors.country && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {errors.country}
+                        </p>
+                      )}
+                    </motion.div>
+
                     <motion.div
                       variants={slideUp}
                       className="grid grid-cols-2 gap-4"
                     >
                       <div>
                         <label
+                          htmlFor="state"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          State/Province/Region{" "}
+                          <span className="text-[#B73B45]">*</span>
+                        </label>
+                        <div className="relative">
+                          {states.length > 0 ? (
+                            <>
+                              <select
+                                id="state"
+                                name="state"
+                                required
+                                value={address.state}
+                                onChange={handleAddressChange}
+                                disabled={countryLoading}
+                                className={`w-full px-4 py-2 border ${
+                                  errors.state
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                                } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none bg-white appearance-none pr-10`}
+                              >
+                                <option value="">Select State</option>
+                                {states.map((state) => (
+                                  <option key={state.code} value={state.name}>
+                                    {state.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                {countryLoading ? (
+                                  <svg
+                                    className="animate-spin h-5 w-5 text-gray-500"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    className="fill-current h-4 w-4"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <input
+                              type="text"
+                              id="state"
+                              name="state"
+                              required
+                              value={address.state}
+                              onChange={handleAddressChange}
+                              placeholder={
+                                countryLoading
+                                  ? "Loading..."
+                                  : "Enter state/province"
+                              }
+                              disabled={countryLoading}
+                              className={`w-full px-4 py-2 border ${
+                                errors.state
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none ${
+                                countryLoading ? "bg-gray-100" : "bg-white"
+                              }`}
+                            />
+                          )}
+                        </div>
+                        {errors.state && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.state}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label
                           htmlFor="city"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          City
+                          City <span className="text-[#B73B45]">*</span>
                         </label>
                         <input
                           type="text"
@@ -332,25 +723,15 @@ export default function Checkout() {
                           required
                           value={address.city}
                           onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                          className={`w-full px-4 py-2 border ${
+                            errors.city ? "border-red-500" : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="state"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          State
-                        </label>
-                        <input
-                          type="text"
-                          id="state"
-                          name="state"
-                          required
-                          value={address.state}
-                          onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
-                        />
+                        {errors.city && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.city}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
 
@@ -363,7 +744,8 @@ export default function Checkout() {
                           htmlFor="postalCode"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Postal Code
+                          Postal/ZIP Code{" "}
+                          <span className="text-[#B73B45]">*</span>
                         </label>
                         <input
                           type="text"
@@ -372,15 +754,24 @@ export default function Checkout() {
                           required
                           value={address.postalCode}
                           onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                          className={`w-full px-4 py-2 border ${
+                            errors.postalCode
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
+                        {errors.postalCode && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.postalCode}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label
                           htmlFor="phone"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Phone
+                          Phone <span className="text-[#B73B45]">*</span>
                         </label>
                         <input
                           type="tel"
@@ -388,15 +779,23 @@ export default function Checkout() {
                           name="phone"
                           required
                           value={address.phone}
-                          onChange={handleAddressChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                          onChange={handlePhoneChange}
+                          placeholder="e.g. +1 555-123-4567"
+                          className={`w-full px-4 py-2 border ${
+                            errors.phone ? "border-red-500" : "border-gray-300"
+                          } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
+                        {errors.phone && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {errors.phone}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   </motion.div>
                 )}
 
-                {step === 2 && (
+                {/* {step === 2 && (
                   <motion.div
                     initial="hidden"
                     animate="visible"
@@ -437,7 +836,7 @@ export default function Checkout() {
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                              $5.99
+                              ₹5.99
                             </span>
                           </label>
                         </div>
@@ -473,7 +872,7 @@ export default function Checkout() {
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                              $12.99
+                              ₹12.99
                             </span>
                           </label>
                         </div>
@@ -526,9 +925,9 @@ export default function Checkout() {
                       ))}
                     </motion.div>
                   </motion.div>
-                )}
+                )} */}
 
-                {step === 4 && (
+                {step === 2 && (
                   <motion.div
                     initial="hidden"
                     animate="visible"
@@ -556,7 +955,7 @@ export default function Checkout() {
                       </p>
                     </motion.div>
 
-                    <motion.div variants={slideUp}>
+                    {/* <motion.div variants={slideUp}>
                       <h3 className="font-medium text-gray-900 mb-2">
                         Shipping Method
                       </h3>
@@ -565,9 +964,9 @@ export default function Checkout() {
                           ? "Express Shipping (1-2 business days)"
                           : "Standard Shipping (3-5 business days)"}
                       </p>
-                    </motion.div>
+                    </motion.div> */}
 
-                    <motion.div variants={slideUp}>
+                    {/* <motion.div variants={slideUp}>
                       <h3 className="font-medium text-gray-900 mb-2">
                         Payment Method
                       </h3>
@@ -580,7 +979,7 @@ export default function Checkout() {
                         {selectedPayment.startsWith("card") &&
                           " ending in ****"}
                       </p>
-                    </motion.div>
+                    </motion.div> */}
                   </motion.div>
                 )}
 
@@ -594,14 +993,35 @@ export default function Checkout() {
                       Back
                     </button>
                   )}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    className="bg-[#B73B45] text-white px-8 py-3 rounded-full font-medium tracking-wide shadow-md hover:shadow-lg transition-all"
-                  >
-                    {step < 4 ? "Continue" : "Place Order"}
-                  </motion.button>
+                  {step !== 2 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={submitting}
+                      className="bg-[#B73B45] text-white px-8 py-3 rounded-full font-medium tracking-wide shadow-md hover:shadow-lg transition-all"
+                    >
+                      Continue
+                    </motion.button>
+                  )}
+                  {step == 2 && (
+                    <WhatsAppRedirect
+                      phoneNumber="+917338649114"
+                      products={data}
+                      address={address}
+                      // additionalNotes={notes}
+                    >
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={submitting}
+                        className="bg-[#B73B45] text-white px-8 py-3 rounded-full font-medium tracking-wide shadow-md hover:shadow-lg transition-all"
+                      >
+                        Place Order
+                      </motion.button>
+                    </WhatsAppRedirect>
+                  )}
                 </div>
               </form>
             </div>
@@ -618,61 +1038,85 @@ export default function Checkout() {
                 Order Summary
               </h2>
 
-              <div className="space-y-4 mb-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4">
-                    <div className="h-16 w-16 bg-[#F0E6E8] rounded-lg flex-shrink-0 flex items-center justify-center">
-                      {/* Placeholder for product image */}
-                      <div
-                        className={`w-10 h-10 rounded-full bg-[${
-                          item.id === 1 ? "#D6A0A8" : "#8A2A33"
-                        }] opacity-70`}
-                      ></div>
-                    </div>
-                    <div className="flex-1">
+              {isLoading ? (
+                ""
+              ) : (
+                <div className="space-y-4 mb-4">
+                  {data?.map((item: CartItem) => (
+                    <div key={item?.id} className="flex items-center space-x-4">
+                      <div className="h-16 w-16 overflow-hidden bg-[#F0E6E8] rounded-lg flex-shrink-0 relative">
+                        <Image
+                          src={
+                            item?.product?.images
+                              ?.map((img) =>
+                                img?.isMain ? img?.url : undefined
+                              )
+                              .filter((url) => url !== undefined)[0] ||
+                            item?.product?.images[0]?.url
+                          }
+                          alt="Product Image"
+                          fill
+                          className="object-cover w-16 h-16"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {item?.product?.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Qty: {item?.quantity}
+                        </p>
+                      </div>
                       <p className="text-sm font-medium text-gray-900">
-                        {item.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Qty: {item.quantity}
+                        ₹
+                        {(item?.product?.salePrice * item?.quantity)?.toFixed(
+                          2
+                        )}
                       </p>
                     </div>
-                    <p className="text-sm font-medium text-gray-900">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
+                  ))}
+                </div>
+              )}
+
+              {isLoading ? (
+                ""
+              ) : (
+                <div className="border-t border-gray-200 pt-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Subtotal</span>
+                    <span className="text-sm font-medium">
+                      ₹{subtotal?.toFixed(2)}
+                    </span>
                   </div>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-200 pt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Subtotal</span>
-                  <span className="text-sm font-medium">
-                    ${subtotal.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Shipping</span>
-                  <span className="text-sm font-medium">
-                    ${shipping.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Shipping</span>
+                    <span className="text-sm font-medium">
+                      ₹{shipping?.toFixed(2)}
+                    </span>
+                  </div>
+                  {/* <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Tax</span>
-                  <span className="text-sm font-medium">${tax.toFixed(2)}</span>
+                  <span className="text-sm font-medium">
+                    ₹{tax?.toFixed(2)}
+                  </span>
+                </div> */}
                 </div>
-              </div>
+              )}
 
-              <div className="border-t border-gray-200 mt-4 pt-4">
-                <div className="flex justify-between">
-                  <span className="text-base font-medium text-gray-900">
-                    Total
-                  </span>
-                  <span className="text-base font-bold text-[#B73B45]">
-                    ${total.toFixed(2)}
-                  </span>
+              {isLoading ? (
+                ""
+              ) : (
+                <div className="border-t border-gray-200 mt-4 pt-4">
+                  <div className="flex justify-between">
+                    <span className="text-base font-medium text-gray-900">
+                      Total
+                    </span>
+                    <span className="text-base font-bold text-[#B73B45]">
+                      ₹{total?.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </motion.div>
         </div>

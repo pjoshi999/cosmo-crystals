@@ -1,11 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { loginService } from "@/lib/features/authSlice";
 import { useAppStore } from "@/hooks/hooks";
+import { PendingCartAction } from "@/types";
+import { addToCartService } from "@/lib/features/cartSlice";
+import { toast } from "sonner";
 
 export default function Login() {
   const router = useRouter();
@@ -14,6 +17,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [pendingCartAction, setPendingCartAction] =
+    useState<PendingCartAction | null>(null);
 
   // Animation variants
   const pageVariants = {
@@ -35,6 +41,18 @@ export default function Login() {
     },
   };
 
+  useEffect(() => {
+    const pendingAction = localStorage.getItem("cartPendingAction");
+    if (pendingAction) {
+      try {
+        setPendingCartAction(JSON.parse(pendingAction));
+      } catch (e) {
+        console.error("Error parsing pending cart action", e);
+        localStorage.removeItem("cartPendingAction");
+      }
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -46,7 +64,28 @@ export default function Login() {
       );
 
       if (loginService.fulfilled.match(resultAction)) {
-        router.push(`/`);
+        // Check if there was a pending cart action
+        if (pendingCartAction) {
+          // Log the pending action (you'd implement actual cart addition here)
+          console.log(
+            `Processing pending action: Adding ${pendingCartAction.quantity} of ${pendingCartAction.productName} to cart`
+          );
+          const resultAction = await store.dispatch(
+            addToCartService({
+              productId: pendingCartAction?.productId,
+              quantity: pendingCartAction?.quantity,
+            })
+          );
+
+          if (addToCartService.fulfilled.match(resultAction)) {
+            toast.success("Product added to cart successfully!");
+          }
+          router.push(`/`);
+        } else {
+          router.push(`/`);
+        }
+
+        localStorage.removeItem("cartPendingAction");
       }
     } catch {
       setError("Invalid email or password. Please try again.");
@@ -67,7 +106,7 @@ export default function Login() {
         <title>Login | Cosmo Crystals</title>
         <meta
           name="description"
-          content="Sign in to your Cosmo Crystals account"
+          content="Sign In to your Cosmo Crystals account"
         />
       </Head>
 
@@ -78,10 +117,16 @@ export default function Login() {
         >
           <motion.div variants={itemVariants}>
             <h2 className="text-center text-3xl font-bold text-[#B73B45] mb-6">
-              Sign in
+              Sign In
             </h2>
             <p className="text-center text-gray-600 mb-8">
               Welcome back to Cosmo Crystals
+              {/* {pendingCartAction && (
+                <span className="block mt-2 text-sm text-[#B73B45]">
+                  Sign in to add {pendingCartAction.quantity}{" "}
+                  {pendingCartAction.productName} to your cart
+                </span>
+              )} */}
             </p>
           </motion.div>
 
@@ -103,7 +148,7 @@ export default function Login() {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Email
+                  Email Address
                 </label>
                 <input
                   id="email"
@@ -195,7 +240,7 @@ export default function Login() {
               href="/register"
               className="font-medium text-[#B73B45] hover:text-[#8A2A33] transition-colors"
             >
-              Create one now
+              Sign up today!
             </Link>
           </motion.div>
         </motion.div>

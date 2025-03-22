@@ -8,7 +8,7 @@
 
 @layer base {
   body {
-    @apply bg-[#fefefe] text-gray-900 antialiased;
+    @apply bg-[#F7F3F4] text-gray-900 antialiased;
   }
 }
 
@@ -41,6 +41,6 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

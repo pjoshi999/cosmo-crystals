@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function About() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -33,36 +34,36 @@ export default function About() {
   };
 
   // Team members data
-  const teamMembers = [
-    {
-      id: 1,
-      name: "Eleanor Jade",
-      role: "Founder & Crystal Expert",
-      bio: "Eleanor's journey with crystals began 15 years ago during her travels through the Himalayan mountains. Her deep connection to earth's minerals has guided our vision.",
-      color: "bg-[#D6A0A8]",
-    },
-    {
-      id: 2,
-      name: "Marcus Rivera",
-      role: "Spiritual Guide",
-      bio: "With over a decade of experience in meditation practices, Marcus ensures every crystal we source is aligned with its highest spiritual purpose.",
-      color: "bg-[#B73B45]",
-    },
-    {
-      id: 3,
-      name: "Sophia Chen",
-      role: "Sustainability Director",
-      bio: "Sophia's background in environmental science ensures our sourcing practices honor both the earth and the communities from which our crystals originate.",
-      color: "bg-[#8A2A33]",
-    },
-    {
-      id: 4,
-      name: "Terrence Moon",
-      role: "Educational Content Creator",
-      bio: "A published author on crystal healing, Terrence develops our rich educational resources to help you make the most of your crystal journey.",
-      color: "bg-[#E0C9CD]",
-    },
-  ];
+  // const teamMembers = [
+  //   {
+  //     id: 1,
+  //     name: "Eleanor Jade",
+  //     role: "Founder & Crystal Expert",
+  //     bio: "Eleanor's journey with crystals began 15 years ago during her travels through the Himalayan mountains. Her deep connection to earth's minerals has guided our vision.",
+  //     color: "bg-[#D6A0A8]",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Marcus Rivera",
+  //     role: "Spiritual Guide",
+  //     bio: "With over a decade of experience in meditation practices, Marcus ensures every crystal we source is aligned with its highest spiritual purpose.",
+  //     color: "bg-[#B73B45]",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Sophia Chen",
+  //     role: "Sustainability Director",
+  //     bio: "Sophia's background in environmental science ensures our sourcing practices honor both the earth and the communities from which our crystals originate.",
+  //     color: "bg-[#8A2A33]",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Terrence Moon",
+  //     role: "Educational Content Creator",
+  //     bio: "A published author on crystal healing, Terrence develops our rich educational resources to help you make the most of your crystal journey.",
+  //     color: "bg-[#E0C9CD]",
+  //   },
+  // ];
 
   // Values data
   const values = [
@@ -144,7 +145,7 @@ export default function About() {
               >
                 <h2 className="text-3xl font-bold text-gray-900">Our Story</h2>
                 <p className="text-gray-600">
-                  Founded in 2018, Cosmo Crystals began as a small collection of
+                  Founded in 2025, Cosmo Crystals began as a small collection of
                   personally sourced crystals from Eleanor&apos;s travels across
                   the globe. What started as a passion project quickly blossomed
                   into a mission to provide ethically sourced crystals with
@@ -171,9 +172,17 @@ export default function About() {
                 className="relative h-80 md:h-96 rounded-2xl overflow-hidden"
               >
                 <div className="absolute inset-0 bg-[#E0C9CD] rounded-2xl">
-                  <div className="absolute top-1/3 left-1/4 w-1/2 h-1/3 bg-[#B73B45] opacity-40 transform rotate-12"></div>
+                  <Image
+                    src={
+                      "https://res.cloudinary.com/djdiqfkxx/image/upload/v1742599569/fwapl4pggjxvhvxxa7gz.png"
+                    }
+                    alt=""
+                    fill
+                    className="w-full h-full object-cover"
+                  />
+                  {/* <div className="absolute top-1/3 left-1/4 w-1/2 h-1/3 bg-[#B73B45] opacity-40 transform rotate-12"></div>
                   <div className="absolute bottom-1/3 right-1/4 w-1/3 h-1/4 rounded-full bg-[#8A2A33] opacity-30"></div>
-                  <div className="absolute top-1/2 left-1/2 w-1/4 h-1/3 rounded-full bg-[#D6A0A8] opacity-50 transform -translate-x-1/2 -translate-y-1/2"></div>
+                  <div className="absolute top-1/2 left-1/2 w-1/4 h-1/3 rounded-full bg-[#D6A0A8] opacity-50 transform -translate-x-1/2 -translate-y-1/2"></div> */}
                 </div>
               </motion.div>
             </div>
@@ -219,7 +228,7 @@ export default function About() {
         </section>
 
         {/* Meet Our Team */}
-        <section className="py-16 md:py-24">
+        {/* <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-6">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -259,7 +268,7 @@ export default function About() {
               ))}
             </motion.div>
           </div>
-        </section>
+        </section> */}
 
         {/* Join Our Mission */}
         <section className="bg-[#B73B45] py-16 md:py-24 text-white">

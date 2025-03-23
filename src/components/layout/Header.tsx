@@ -262,7 +262,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                 ))}
               </motion.nav>
 
-              <motion.div
+              {/* <motion.div
                 className="absolute bottom-10 flex space-x-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -315,7 +315,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                   </svg>
                 </motion.a>
-              </motion.div>
+              </motion.div> */}
             </div>
           </motion.div>
         )}

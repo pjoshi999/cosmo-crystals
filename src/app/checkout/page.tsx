@@ -92,7 +92,7 @@ export default function Checkout() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [showOrderSummary, setShowOrderSummary] = useState(false);
+  // const [showOrderSummary, setShowOrderSummary] = useState(false);
 
   // Location data states
   const [countries, setCountries] = useState<Country[]>([]);
@@ -183,7 +183,7 @@ export default function Checkout() {
       setIsMobile(window.innerWidth < 768);
 
       // Auto-hide order summary on mobile, show on desktop
-      setShowOrderSummary(window.innerWidth >= 768);
+      // setShowOrderSummary(window.innerWidth >= 768);
     };
 
     // Initial check on component mount
@@ -308,7 +308,7 @@ export default function Checkout() {
           setStep(2);
           // On mobile, show the order summary when moving to confirmation step
           if (isMobile) {
-            setShowOrderSummary(true);
+            // setShowOrderSummary(true);
           }
         }
       }
@@ -326,9 +326,9 @@ export default function Checkout() {
   }, []);
 
   // Toggle order summary visibility (for mobile)
-  const toggleOrderSummary = () => {
-    setShowOrderSummary(!showOrderSummary);
-  };
+  // const toggleOrderSummary = () => {
+  //   setShowOrderSummary(!showOrderSummary);
+  // };
 
   return (
     <div className="bg-[#F7F3F4]">

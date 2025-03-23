@@ -129,7 +129,7 @@ export default function Hero() {
                 >
                   Shop By Category
                 </motion.h2>
-                <div className="grid grid-cols-2 md:grid-cols-8 gap-5">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-5">
                   {categoryLoading
                     ? ""
                     : categoryData?.categories?.map(

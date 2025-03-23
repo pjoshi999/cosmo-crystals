@@ -69,15 +69,15 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
             alt="Cosmo Crystals"
             width={160}
             height={160}
-            className="h-full w-full object-cover sm:block hidden"
+            className="h-full w-full object-cover"
           />
-          <Image
+          {/* <Image
             src="/assets/logo4.png"
             alt="Cosmo Crystals"
             width={30}
             height={30}
             className="h-10 w-10 object-cover sm:hidden block"
-          />
+          /> */}
         </motion.a>
 
         {options && (
@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
           <div className="flex items-center space-x-4">
             <Link
               href="/profile"
-              className="p-2 hover:text-[#B73B45] transition-colors"
+              className="p-2 hover:text-[#B73B45] transition-colors md:block hidden"
             >
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <svg
@@ -244,6 +244,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                   { href: "/", label: "Home" },
                   { href: "/category", label: "Category" },
                   { href: "/about", label: "About" },
+                  { href: "/profile", label: "Profile" },
                 ].map(({ href, label }, i) => (
                   <motion.div
                     key={label}

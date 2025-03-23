@@ -91,17 +91,17 @@ export default function ProductDetail({
   if (productLoading)
     return (
       <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
-        <Image src="/assets/logo.png" alt="" width={25} height={25} />
+        <Image src="/assets/logo4.png" alt="" width={150} height={150} />
       </div>
     );
 
   return (
-    <div className="bg-[#F7F3F4] min-h-[80vh]">
+    <div className="bg-[#F7F3F4]">
       <Head>
         <title>{`${product?.name} | Cosmo Crystals`}</title>
         <meta
           name="description"
-          content={`${product?.name} - ${product?.description.substring(
+          content={`${product?.name} - ${product?.description?.substring(
             0,
             150
           )}...`}
@@ -175,13 +175,13 @@ export default function ProductDetail({
               <h1 className="text-2xl font-medium text-gray-800 my-2">
                 {product.name}
               </h1>
-              <div className="flex items-center gap-3">
+              <div className="flex items-end gap-3">
                 <span className="text-3xl font-bold text-[#EA5C6F] flex items-start gap-0.5">
                   <span className="text-sm pt-1">₹</span>
                   {product.salePrice}
                 </span>
                 {product.salePrice < product.price && (
-                  <span className="text-gray-400 line-through">
+                  <span className="text-gray-400 line-through pb-0.5">
                     ₹{product.price}
                   </span>
                 )}

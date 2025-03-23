@@ -51,13 +51,6 @@ interface State {
   code: string;
 }
 
-// interface PaymentMethod {
-//   id: string;
-//   name: string;
-//   last4?: string;
-//   icon: string;
-// }
-
 export default function Checkout() {
   const { data, isLoading } = useCart();
   const { data: countryData, isLoading: countryLoading } = useCountries();
@@ -99,20 +92,11 @@ export default function Checkout() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
 
   // Location data states
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
-
-  // const [shippingMethod, setShippingMethod] = useState("standard");
-  // const [selectedPayment, setSelectedPayment] = useState("card1");
-
-  // Payment methods
-  // const paymentMethods: PaymentMethod[] = [
-  //   { id: "card1", name: "Visa", last4: "4242", icon: "visa" },
-  //   { id: "card2", name: "Mastercard", last4: "8888", icon: "mastercard" },
-  //   { id: "paypal", name: "PayPal", icon: "paypal" },
-  // ];
 
   const subtotal = data?.reduce(
     (sum: number, item: CartItem) =>
@@ -191,6 +175,26 @@ export default function Checkout() {
       fetchStates();
     }
   }, [address.country, countryData]);
+
+  // Check if we're on mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+
+      // Auto-hide order summary on mobile, show on desktop
+      setShowOrderSummary(window.innerWidth >= 768);
+    };
+
+    // Initial check on component mount
+    checkIfMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIfMobile);
+
+    // Cleanup event listener on component unmount
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   // Validate form
   const validateForm = () => {
@@ -283,7 +287,6 @@ export default function Checkout() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Simulating a successful API response
-      // console.log("Address saved successfully:", address);
       return true;
     } catch (error) {
       console.error("Error saving address:", error);
@@ -303,6 +306,10 @@ export default function Checkout() {
         const success = await saveAddressToAPI();
         if (success) {
           setStep(2);
+          // On mobile, show the order summary when moving to confirmation step
+          if (isMobile) {
+            setShowOrderSummary(true);
+          }
         }
       }
     } else {
@@ -311,9 +318,6 @@ export default function Checkout() {
       // Simulate API call for placing the order
       await new Promise((resolve) => setTimeout(resolve, 1500));
       setSubmitting(false);
-      // alert(
-      //   "Thank you for your order! Your order has been placed successfully."
-      // );
     }
   };
 
@@ -321,14 +325,19 @@ export default function Checkout() {
     setIsLoaded(true);
   }, []);
 
+  // Toggle order summary visibility (for mobile)
+  const toggleOrderSummary = () => {
+    setShowOrderSummary(!showOrderSummary);
+  };
+
   return (
-    <div className="bg-[#F7F3F4] min-h-screen">
-      <main className="max-w-7xl mx-auto px-6 py-12">
+    <div className="bg-[#F7F3F4]">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <motion.div
           initial="hidden"
           animate={isLoaded ? "visible" : "hidden"}
           variants={fadeIn}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <Link
             href="/"
@@ -348,72 +357,50 @@ export default function Checkout() {
             </svg>
             Back to shopping
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-4">Checkout</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-3">
+            Checkout
+          </h1>
         </motion.div>
 
-        {/* Progress bar */}
-        {/* <motion.div
-          initial="hidden"
-          animate={isLoaded ? "visible" : "hidden"}
-          variants={fadeIn}
-          className="mb-10"
-        >
-          <div className="flex items-center justify-between w-full max-w-3xl mx-auto">
-            {["Information", "Shipping", "Payment", "Review"].map(
-              (label, index) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center relative"
+        {/* Mobile order summary toggle */}
+        {/* {isMobile && (
+          <motion.div
+            initial="hidden"
+            animate={isLoaded ? "visible" : "hidden"}
+            variants={fadeIn}
+            className="mb-6"
+          >
+            <button
+              onClick={toggleOrderSummary}
+              className="w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-sm"
+            >
+              <span className="font-medium text-gray-900">
+                Order Summary ({data?.length || 0} items)
+              </span>
+              <div className="flex items-center">
+                <span className="font-bold text-[#B73B45] mr-2">
+                  ₹{total?.toFixed(2)}
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-5 w-5 transition-transform ${
+                    showOrderSummary ? "rotate-180" : ""
+                  }`}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      step > index
-                        ? "bg-[#B73B45] text-white"
-                        : step === index + 1
-                        ? "bg-[#B73B45] text-white"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    {step > index ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  <span
-                    className={`text-xs mt-2 ${
-                      step >= index + 1
-                        ? "text-[#B73B45] font-medium"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {label}
-                  </span>
-                  {index < 3 && (
-                    <div
-                      className={`absolute h-0.5 w-24 top-4 left-8 -z-10 ${
-                        step > index ? "bg-[#B73B45]" : "bg-gray-200"
-                      }`}
-                    ></div>
-                  )}
-                </div>
-              )
-            )}
-          </div>
-        </motion.div> */}
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </button>
+          </motion.div>
+        )} */}
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:grid md:grid-cols-3 gap-6 md:gap-8 flex flex-col-reverse">
           {/* Left column - Address form */}
           <motion.div
             initial="hidden"
@@ -421,21 +408,21 @@ export default function Checkout() {
             variants={slideUp}
             className="md:col-span-2"
           >
-            <div className="bg-white rounded-2xl shadow-md p-6 md:p-8">
+            <div className="bg-white rounded-2xl shadow-md p-6 lg:p-8">
               <form onSubmit={handleSubmit}>
                 {step === 1 && (
                   <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={staggeredContainer}
-                    className="space-y-6"
+                    className="space-y-5 md:space-y-6"
                   >
                     <h2 className="text-xl font-bold text-gray-900 mb-4">
                       Contact Information
                     </h2>
                     <motion.div
                       variants={slideUp}
-                      className="grid grid-cols-2 gap-4"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       <div>
                         <label
@@ -451,7 +438,7 @@ export default function Checkout() {
                           required
                           value={address.firstName}
                           onChange={handleAddressChange}
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.firstName
                               ? "border-red-500"
                               : "border-gray-300"
@@ -477,7 +464,7 @@ export default function Checkout() {
                           required
                           value={address.lastName}
                           onChange={handleAddressChange}
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.lastName
                               ? "border-red-500"
                               : "border-gray-300"
@@ -505,7 +492,7 @@ export default function Checkout() {
                         required
                         value={address.address1}
                         onChange={handleAddressChange}
-                        className={`w-full px-4 py-2 border ${
+                        className={`w-full px-3 py-2 border ${
                           errors.address1 ? "border-red-500" : "border-gray-300"
                         } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                       />
@@ -529,7 +516,7 @@ export default function Checkout() {
                         name="address2"
                         value={address.address2}
                         onChange={handleAddressChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none"
                       />
                     </motion.div>
 
@@ -548,7 +535,7 @@ export default function Checkout() {
                           value={address.country}
                           onChange={handleAddressChange}
                           disabled={countryLoading}
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.country
                               ? "border-red-500"
                               : "border-gray-300"
@@ -607,7 +594,7 @@ export default function Checkout() {
 
                     <motion.div
                       variants={slideUp}
-                      className="grid grid-cols-2 gap-4"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       <div>
                         <label
@@ -627,7 +614,7 @@ export default function Checkout() {
                                 value={address.state}
                                 onChange={handleAddressChange}
                                 disabled={countryLoading}
-                                className={`w-full px-4 py-2 border ${
+                                className={`w-full px-3 py-2 border ${
                                   errors.state
                                     ? "border-red-500"
                                     : "border-gray-300"
@@ -691,7 +678,7 @@ export default function Checkout() {
                                   : "Enter state/province"
                               }
                               disabled={countryLoading}
-                              className={`w-full px-4 py-2 border ${
+                              className={`w-full px-3 py-2 border ${
                                 errors.state
                                   ? "border-red-500"
                                   : "border-gray-300"
@@ -721,7 +708,7 @@ export default function Checkout() {
                           required
                           value={address.city}
                           onChange={handleAddressChange}
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.city ? "border-red-500" : "border-gray-300"
                           } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
@@ -735,7 +722,7 @@ export default function Checkout() {
 
                     <motion.div
                       variants={slideUp}
-                      className="grid grid-cols-2 gap-4"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       <div>
                         <label
@@ -752,7 +739,7 @@ export default function Checkout() {
                           required
                           value={address.postalCode}
                           onChange={handleAddressChange}
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.postalCode
                               ? "border-red-500"
                               : "border-gray-300"
@@ -779,7 +766,7 @@ export default function Checkout() {
                           value={address.phone}
                           onChange={handlePhoneChange}
                           placeholder="e.g. +1 555-123-4567"
-                          className={`w-full px-4 py-2 border ${
+                          className={`w-full px-3 py-2 border ${
                             errors.phone ? "border-red-500" : "border-gray-300"
                           } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
                         />
@@ -793,146 +780,14 @@ export default function Checkout() {
                   </motion.div>
                 )}
 
-                {/* {step === 2 && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={staggeredContainer}
-                    className="space-y-6"
-                  >
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Shipping Method
-                    </h2>
-                    <motion.div variants={slideUp} className="space-y-4">
-                      <div
-                        className={`border ${
-                          shippingMethod === "standard"
-                            ? "border-[#B73B45] bg-[#F0E6E8]"
-                            : "border-gray-200"
-                        } rounded-lg p-4 cursor-pointer transition-all`}
-                        onClick={() => setShippingMethod("standard")}
-                      >
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="standard"
-                            name="shippingMethod"
-                            checked={shippingMethod === "standard"}
-                            onChange={() => setShippingMethod("standard")}
-                            className="h-4 w-4 text-[#B73B45] focus:ring-[#B73B45]"
-                          />
-                          <label
-                            htmlFor="standard"
-                            className="ml-3 flex justify-between w-full"
-                          >
-                            <div>
-                              <span className="block text-sm font-medium text-gray-900">
-                                Standard Shipping
-                              </span>
-                              <span className="block text-sm text-gray-500">
-                                3-5 business days
-                              </span>
-                            </div>
-                            <span className="text-sm font-medium text-gray-900">
-                              ₹5.99
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div
-                        className={`border ${
-                          shippingMethod === "express"
-                            ? "border-[#B73B45] bg-[#F0E6E8]"
-                            : "border-gray-200"
-                        } rounded-lg p-4 cursor-pointer transition-all`}
-                        onClick={() => setShippingMethod("express")}
-                      >
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="express"
-                            name="shippingMethod"
-                            checked={shippingMethod === "express"}
-                            onChange={() => setShippingMethod("express")}
-                            className="h-4 w-4 text-[#B73B45] focus:ring-[#B73B45]"
-                          />
-                          <label
-                            htmlFor="express"
-                            className="ml-3 flex justify-between w-full"
-                          >
-                            <div>
-                              <span className="block text-sm font-medium text-gray-900">
-                                Express Shipping
-                              </span>
-                              <span className="block text-sm text-gray-500">
-                                1-2 business days
-                              </span>
-                            </div>
-                            <span className="text-sm font-medium text-gray-900">
-                              ₹12.99
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-
-                {step === 3 && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={staggeredContainer}
-                    className="space-y-6"
-                  >
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Payment Method
-                    </h2>
-                    <motion.div variants={slideUp} className="space-y-4">
-                      {paymentMethods.map((method) => (
-                        <div
-                          key={method.id}
-                          className={`border ${
-                            selectedPayment === method.id
-                              ? "border-[#B73B45] bg-[#F0E6E8]"
-                              : "border-gray-200"
-                          } rounded-lg p-4 cursor-pointer transition-all`}
-                          onClick={() => setSelectedPayment(method.id)}
-                        >
-                          <div className="flex items-center">
-                            <input
-                              type="radio"
-                              id={method.id}
-                              name="paymentMethod"
-                              checked={selectedPayment === method.id}
-                              onChange={() => setSelectedPayment(method.id)}
-                              className="h-4 w-4 text-[#B73B45] focus:ring-[#B73B45]"
-                            />
-                            <label
-                              htmlFor={method.id}
-                              className="ml-3 flex items-center"
-                            >
-                              <span className="block text-sm font-medium text-gray-900">
-                                {method.name}
-                                {method.last4 && ` ending in ${method.last4}`}
-                              </span>
-                            </label>
-                          </div>
-                        </div>
-                      ))}
-                    </motion.div>
-                  </motion.div>
-                )} */}
-
                 {step === 2 && (
                   <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={staggeredContainer}
-                    className="space-y-6"
+                    className="space-y-5 md:space-y-6"
                   >
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 md:mb-4">
                       Order Review
                     </h2>
                     <motion.div variants={slideUp}>
@@ -952,41 +807,15 @@ export default function Checkout() {
                         {address.phone}
                       </p>
                     </motion.div>
-
-                    {/* <motion.div variants={slideUp}>
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        Shipping Method
-                      </h3>
-                      <p className="text-gray-700">
-                        {shippingMethod === "express"
-                          ? "Express Shipping (1-2 business days)"
-                          : "Standard Shipping (3-5 business days)"}
-                      </p>
-                    </motion.div> */}
-
-                    {/* <motion.div variants={slideUp}>
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        Payment Method
-                      </h3>
-                      <p className="text-gray-700">
-                        {
-                          paymentMethods.find(
-                            (method) => method.id === selectedPayment
-                          )?.name
-                        }
-                        {selectedPayment.startsWith("card") &&
-                          " ending in ****"}
-                      </p>
-                    </motion.div> */}
                   </motion.div>
                 )}
 
-                <div className="mt-8 flex items-center justify-between">
+                <div className="mt-6 sm:mt-8 flex flex-row items-center justify-between">
                   {step > 1 && (
                     <button
                       type="button"
                       onClick={() => setStep(step - 1)}
-                      className="text-[#B73B45] font-medium"
+                      className="text-[#B73B45] font-medium mb-0 sm:mb-0"
                     >
                       Back
                     </button>
@@ -1004,7 +833,7 @@ export default function Checkout() {
                   )}
                   {step == 2 && (
                     <WhatsAppRedirect
-                      phoneNumber="+918980388129"
+                      phoneNumber="+917899721079"
                       products={data}
                       address={address}
                       // additionalNotes={notes}
@@ -1033,7 +862,10 @@ export default function Checkout() {
           >
             <div className="bg-white rounded-2xl shadow-md p-6 sticky top-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Order Summary
+                Order Summary{" "}
+                <span className="font-medium text-gray-900">
+                  ({data?.length || 0} items)
+                </span>
               </h2>
 
               {isLoading ? (
@@ -1041,7 +873,11 @@ export default function Checkout() {
               ) : (
                 <div className="space-y-4 mb-4">
                   {data?.map((item: CartItem) => (
-                    <div key={item?.id} className="flex items-center space-x-4">
+                    <Link
+                      href={`/product/${item?.product?.id}`}
+                      key={item?.id}
+                      className="flex items-center space-x-4"
+                    >
                       <div className="h-16 w-16 overflow-hidden bg-[#F0E6E8] rounded-lg flex-shrink-0 relative">
                         <Image
                           src={
@@ -1071,7 +907,7 @@ export default function Checkout() {
                           2
                         )}
                       </p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

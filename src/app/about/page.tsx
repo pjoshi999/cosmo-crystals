@@ -98,7 +98,7 @@ export default function About() {
   ];
 
   return (
-    <div className="bg-[#F7F3F4] min-h-screen">
+    <div className="bg-[#F7F3F4]">
       <Head>
         <title>About Us | Cosmo Crystals</title>
         <meta

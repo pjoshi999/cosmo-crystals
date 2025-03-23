@@ -55,12 +55,14 @@ const refreshToken = async () => {
         refreshToken: refreshToken,
       }
     );
-    const accessToken = response.data?.accessToken;
+    const access = response.data?.accessToken;
+    const refresh = response.data?.refreshToken;
 
     // Store the new tokens
-    Cookies.set("accessToken", accessToken, { secure: true });
+    Cookies.set("accessToken", access, { secure: true });
+    Cookies.set("refreshToken", refresh, { secure: true });
 
-    return accessToken;
+    return access;
   } catch {
     Cookies.remove("accessToken");
     // window.location.href = "/login";

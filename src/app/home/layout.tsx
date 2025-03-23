@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <>
       <Header />
-      {children}
+      <div className="min-h-[80vh]">{children}</div>
       <Footer />
     </>
   );

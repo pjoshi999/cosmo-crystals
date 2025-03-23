@@ -208,7 +208,7 @@ export default function ProfilePage() {
   if (isLoading) return "";
 
   return (
-    <div className="bg-[#F7F3F4] min-h-screen">
+    <div className="bg-[#F7F3F4]">
       {/* Profile Header */}
       <motion.section
         initial="hidden"

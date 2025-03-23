@@ -114,12 +114,16 @@ export default function CategoryPage() {
   };
 
   if (categoryLoading || productLoading) {
-    return <div className="min-h-[80vh] bg-[#F7F3F4]">Loading..</div>;
+    return (
+      <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
+        <Image src="/assets/logo4.png" alt="" width={150} height={150} />
+      </div>
+    );
   }
 
   return (
-    <Suspense fallback="Loading..">
-      <div className="bg-[#F7F3F4] min-h-screen">
+    <Suspense fallback="">
+      <div className="bg-[#F7F3F4]">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <motion.div
@@ -155,11 +159,11 @@ export default function CategoryPage() {
               {category ? category?.name?.replaceAll("-", " ") : "All Crystals"}
             </h1>
             {/* {category?.description && ( */}
-            <p className="mt-2 text-gray-600">
+            {/* <p className="mt-2 text-gray-600">
               {category
                 ? category?.description?.split("\n")[0]
                 : "All Crystals"}
-            </p>
+            </p> */}
             {/* )} */}
           </motion.div>
 
@@ -352,7 +356,7 @@ export default function CategoryPage() {
                         categories
                       </p>
                       <Link
-                        href="/"
+                        href="/category"
                         className="inline-block bg-[#B73B45] text-white py-2 px-6 rounded-lg font-medium hover:bg-[#8A2A33]"
                       >
                         Explore All Products
@@ -361,7 +365,7 @@ export default function CategoryPage() {
                   ) : (
                     /* Product Grid */
                     <motion.div
-                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
+                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4"
                       variants={staggerContainer}
                       initial="hidden"
                       animate="visible"
@@ -422,7 +426,7 @@ export default function CategoryPage() {
                                     ₹{product?.salePrice?.toFixed(2)}
                                   </span>
                                   {product.salePrice < product.price && (
-                                    <span className="ml-2 text-sm text-gray-400 line-through">
+                                    <span className="ml-2 lg:text-sm text-xs text-gray-400 line-through">
                                       ₹{product?.price?.toFixed(2)}
                                     </span>
                                   )}

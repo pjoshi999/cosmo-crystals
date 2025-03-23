@@ -154,19 +154,19 @@ export default function Home() {
     {
       id: 1,
       text: "The amethyst from Cosmo Crystals has completely transformed my meditation practice. The energy is incredibly pure.",
-      name: "Sarah J.",
+      name: "Priya S.",
       color: "bg-[#D6A0A8]",
     },
     {
       id: 2,
       text: "I've been collecting crystals for years, and the quality from Cosmo Crystals is unmatched. Their customer service is exceptional.",
-      name: "Michael T.",
+      name: "Rohan M.",
       color: "bg-[#B73B45]",
     },
     {
       id: 3,
       text: "The crystal finder quiz led me to exactly what I needed at this point in my life. Truly life-changing experience.",
-      name: "Emma R.",
+      name: "Ananya R.",
       color: "bg-[#E0C9CD]",
     },
   ];
@@ -180,7 +180,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div className="bg-[#F7F3F4] min-h-screen">
+      <div className="bg-[#F7F3F4]">
         <main>
           {/* Hero Section */}
           <section className="lg:bg-[#F0E6E8] py-16 md:py-24 lg:block hidden">
@@ -204,7 +204,7 @@ export default function Home() {
                   Ethically sourced crystals for spiritual awakening
                 </motion.p>
                 <motion.a
-                  href="/categories"
+                  href="/category"
                   variants={slideUp}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -307,7 +307,7 @@ export default function Home() {
           </section>
 
           {/* Featured Products */}
-          <section className="py-16 md:py-24">
+          <section className="pb-16 py-0 md:py-24">
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}

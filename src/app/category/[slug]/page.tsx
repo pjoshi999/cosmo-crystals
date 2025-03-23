@@ -117,12 +117,16 @@ export default function CategoryPage({
   };
 
   if (categoryLoading || productLoading) {
-    return <div className="min-h-[80vh] bg-[#F7F3F4]">Loading..</div>;
+    return (
+      <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
+        <Image src="/assets/logo4.png" alt="" width={150} height={150} />
+      </div>
+    );
   }
 
   return (
-    <Suspense fallback="Loading..">
-      <div className="bg-[#F7F3F4] min-h-screen">
+    <Suspense fallback="">
+      <div className="bg-[#F7F3F4]">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <motion.div
@@ -373,7 +377,7 @@ export default function CategoryPage({
                         categories
                       </p>
                       <Link
-                        href="/"
+                        href="/category"
                         className="inline-block bg-[#B73B45] text-white py-2 px-6 rounded-lg font-medium hover:bg-[#8A2A33]"
                       >
                         Explore All Products

@@ -93,7 +93,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <Suspense fallback="Loading...">
+    <Suspense fallback="">
       <div className="min-h-[90vh] bg-[#F7F3F4] flex items-center justify-center px-4">
         <motion.div
           className="w-full max-w-md"

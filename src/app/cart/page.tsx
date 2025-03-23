@@ -64,7 +64,7 @@ export default function Cart() {
   // Calculate totals
   const subtotal = cartItems?.reduce(
     (sum: number, item: CartItem) =>
-      sum + item?.product?.price * item?.quantity,
+      sum + item?.product?.salePrice * item?.quantity,
     0
   );
   const shipping = subtotal > 100 ? 0 : 99;

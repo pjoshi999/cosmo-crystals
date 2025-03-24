@@ -5,14 +5,14 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       retry: 3,
       staleTime: 60 * 1000, // 1 minute
-      gcTime: 0.1 * 60 * 1000, // 0 seconds (cache time)
+      gcTime: 0.05 * 60 * 1000, // cache time
       throwOnError: false,
     },
     mutations: {
-      retry: false,
+      retry: true,
       throwOnError: true,
     },
   },

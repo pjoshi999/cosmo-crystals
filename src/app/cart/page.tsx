@@ -166,9 +166,12 @@ export default function Cart() {
                     <div className="py-12 text-center">
                       <ShoppingCart className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                       <p className="text-gray-500">Your cart is empty</p>
-                      <button className="mt-4 px-6 py-2 bg-[#B73B45] text-white rounded-full hover:bg-[#9c323a] transition-colors">
+                      {/* <Link
+                        href={"/category"}
+                        className="mt-4 px-6 py-2 bg-[#b73b44] text-white rounded-full hover:bg-[#9c323a] transition-colors"
+                      >
                         Continue Shopping
-                      </button>
+                      </Link> */}
                     </div>
                   )}
 

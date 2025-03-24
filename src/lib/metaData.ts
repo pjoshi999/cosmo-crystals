@@ -1,5 +1,5 @@
 export const baseMetadata = {
-  metadataBase: new URL("https://www.cosmocrystals.com"),
+  metadataBase: new URL("https://cosmocrystals.com"),
   title: {
     default: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
     template: "%s | Cosmo Crystals",
@@ -24,19 +24,19 @@ export const baseMetadata = {
   authors: [
     {
       name: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
-      url: "https://www.cosmocrystals.com",
+      url: "https://cosmocrystals.com",
     },
   ],
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.cosmocrystals.com",
+    url: "https://cosmocrystals.com",
     title: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
     description:
       "Discover a sacred selection of spiritual crystals, gemstones, and energy-healing stones at Cosmo Crystals. Shop now for authentic and powerful healing products.",
     images: [
       {
-        url: "https://www.cosmocrystals.com/og-image.jpg",
+        url: "https://cosmocrystals.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Cosmo Crystals - Spiritual & Healing Crystals",
@@ -50,11 +50,11 @@ export const baseMetadata = {
     title: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
     description:
       "Shop high-quality spiritual and healing crystals at Cosmo Crystals. Find powerful gemstones for energy balancing, chakra healing, and astrology needs.",
-    images: ["https://www.cosmocrystals.com/twitter-image.jpg"],
+    images: ["https://cosmocrystals.com/twitter-image.jpg"],
   },
   robots: "index, follow",
   alternates: {
-    canonical: "https://www.cosmocrystals.com",
+    canonical: "https://cosmocrystals.com",
     languages: {
       "en-US": "/en-US",
     },

@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "motion/react";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { useCategory } from "@/hooks/queries/useCategories";
@@ -66,6 +66,18 @@ export default function Home() {
   });
   const { data: productData, isLoading: productLoading } = useProducts({
     limit: 8,
+  });
+
+  const categorySectionRef = useRef(null);
+  const productSectionRef = useRef(null);
+
+  const isCategoryInView = useInView(categorySectionRef, {
+    once: true,
+    amount: 0.1,
+  });
+  const isProductInView = useInView(productSectionRef, {
+    once: true,
+    amount: 0.1,
   });
 
   // Animation variants
@@ -242,12 +254,18 @@ export default function Home() {
           <Hero />
 
           {/* Featured Categories */}
-          <section className="py-16 md:py-24 lg:block hidden">
+          <section
+            className="py-16 md:py-24 lg:block hidden"
+            ref={categorySectionRef}
+          >
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                animate={
+                  isCategoryInView
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 20 }
+                }
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
@@ -256,9 +274,8 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="visible"
-                whileInView="visible"
-                viewport={{ once: true }}
+                initial="hidden"
+                animate={isCategoryInView ? "visible" : "hidden"}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
               >
                 {categoryLoading
@@ -272,14 +289,6 @@ export default function Home() {
                           whileHover={{ y: -10, transition: { duration: 0.2 } }}
                           className="bg-white rounded-2xl shadow-md overflow-hidden"
                         >
-                          {/* <div className={`h-48 overflow-hidden`}>
-                            <Image
-                              src={`/assets/prod${index + 1}.png`}
-                              alt={category?.name}
-                              fill
-                              className="object-cover h-full w-full"
-                            />
-                          </div> */}
                           <div className="relative h-48 md:h-56 lg:h-64 bg-[#F0E6E8]">
                             <Image
                               src={`/assets/prod${index + 2}.png`}
@@ -307,12 +316,13 @@ export default function Home() {
           </section>
 
           {/* Featured Products */}
-          <section className="pb-16 py-0 md:py-24">
+          <section ref={productSectionRef} className="pb-16 py-0 md:py-24">
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                animate={
+                  isProductInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+                }
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
@@ -321,9 +331,8 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="visible"
-                whileInView="visible"
-                viewport={{ once: true }}
+                initial="hidden"
+                animate={isProductInView ? "visible" : "hidden"}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
               >
                 {productLoading
@@ -350,18 +359,6 @@ export default function Home() {
                             fill
                             className="object-cover"
                           />
-                          {/* {product.id === 1 && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#B73B45] opacity-30"></div>
-                          )}
-                          {product.id === 2 && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-36 rotate-45 bg-[#8A2A33] opacity-40"></div>
-                          )}
-                          {product.id === 3 && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-[#D6A0A8] opacity-50"></div>
-                          )}
-                          {product.id === 4 && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-24 bg-[#C65A64] opacity-40"></div>
-                          )} */}
                         </div>
                         <div className="px-6 py-3 pb-4">
                           <h3 className="text-lg font-bold text-gray-900">

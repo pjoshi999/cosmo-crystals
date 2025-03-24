@@ -5,6 +5,7 @@ import StoreProvider from "./StoreProvider";
 import QueryProvider from "./QueryProvider";
 import { baseMetadata } from "@/lib/metaData";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
             <div className="min-h-[80vh]">{children}</div>
           </QueryProvider>
         </StoreProvider>
+        <Analytics />
       </body>
     </html>
   );

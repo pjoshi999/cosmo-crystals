@@ -28,8 +28,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date().toISOString(),
       })
     );
+    const { data: productData } = await apiClient.get("/products");
 
-    return [...staticPages, ...categoryPages];
+    const productPages = productData?.products.map(
+      (product: { id: string }) => ({
+        url: `${baseUrl}/products/${product.id}`,
+        lastModified: new Date().toISOString(),
+      })
+    );
+
+    return [...staticPages, ...categoryPages, ...productPages];
   } catch (error) {
     console.error("Error fetching sitemap data:", error);
     return staticPages;

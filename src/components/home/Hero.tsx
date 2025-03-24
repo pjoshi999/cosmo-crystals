@@ -53,7 +53,7 @@ export default function Hero() {
 
   return (
     <div className="lg:bg-[#F0E6E8] lg:hidden block">
-      <main className="container mx-auto py-8">
+      <main className="mx-auto px-6 py-8">
         {/* Featured Cards Section */}
         <div className="relative mb-12">
           <div
@@ -119,7 +119,7 @@ export default function Hero() {
               ref={categoriesRef}
               className="flex overflow-x-auto no-scrollbar gap-3 pb-2"
             >
-              <section className="container mx-auto px-2 pt-0">
+              <section className="w-full mx-auto px-2 pt-0">
                 <motion.h2
                   className="text-3xl font-bold text-gray-900 mb-10"
                   initial={{ opacity: 0, y: 20 }}

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useProfile } from "@/hooks/queries/useProfile";
 import { formatDateTime } from "@/utils/dateAndTime";
+import Image from "next/image";
 
 // Define types based on your Prisma schema
 // interface User {
@@ -205,7 +206,12 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) return "";
+  if (isLoading)
+    return (
+      <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
+        <Image src="/assets/logo4.png" alt="" width={150} height={150} />
+      </div>
+    );
 
   return (
     <div className="bg-[#F7F3F4]">

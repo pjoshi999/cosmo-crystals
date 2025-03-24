@@ -256,7 +256,7 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="hidden"
+                initial="visible"
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -321,7 +321,7 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="hidden"
+                initial="visible"
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"

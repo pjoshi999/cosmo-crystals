@@ -7,7 +7,7 @@ export const handleApiError = (error: ApiError): HandleApiErrorResponse => {
     toastMessage: "An unexpected error occurred",
   };
 
-  // console.error(error);
+  console.error(error);
 
   if (!error.response) {
     toast.error("Network error occurred");

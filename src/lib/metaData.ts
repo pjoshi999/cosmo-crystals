@@ -16,8 +16,16 @@ export const baseMetadata = {
     "natural gemstones",
     "crystal healing",
     "cosmo crystals",
+    "cosmo crystal",
     "astrology stones",
     "spiritual gifts",
+  ],
+  publisher: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
+  authors: [
+    {
+      name: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
+      url: "https://www.cosmocrystals.com",
+    },
   ],
   openGraph: {
     type: "website",
@@ -47,5 +55,8 @@ export const baseMetadata = {
   robots: "index, follow",
   alternates: {
     canonical: "https://www.cosmocrystals.com",
+    languages: {
+      "en-US": "/en-US",
+    },
   },
 };

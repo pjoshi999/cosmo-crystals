@@ -16,6 +16,8 @@ export const baseMetadata = {
     "natural gemstones",
     "crystal healing",
     "cosmo crystals",
+    "cosmocrystals",
+    "cosmocrystal",
     "cosmo crystal",
     "astrology stones",
     "spiritual gifts",
@@ -23,8 +25,8 @@ export const baseMetadata = {
   publisher: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
   authors: [
     {
-      name: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
-      url: "https://cosmocrystals.com",
+      name: "Priyanshu Joshi",
+      url: "https://x.com/priyaansshhu",
     },
   ],
   openGraph: {
@@ -36,7 +38,7 @@ export const baseMetadata = {
       "Discover a sacred selection of spiritual crystals, gemstones, and energy-healing stones at Cosmo Crystals. Shop now for authentic and powerful healing products.",
     images: [
       {
-        url: "https://cosmocrystals.com/og-image.jpg",
+        url: "https://cosmocrystals.com/opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "Cosmo Crystals - Spiritual & Healing Crystals",
@@ -50,7 +52,7 @@ export const baseMetadata = {
     title: "Cosmo Crystals – Buy Spiritual & Healing Crystals Online",
     description:
       "Shop high-quality spiritual and healing crystals at Cosmo Crystals. Find powerful gemstones for energy balancing, chakra healing, and astrology needs.",
-    images: ["https://cosmocrystals.com/twitter-image.jpg"],
+    images: ["https://cosmocrystals.com/twitter-image.png"],
   },
   robots: "index, follow",
   alternates: {

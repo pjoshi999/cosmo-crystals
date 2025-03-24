@@ -15,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://www.cosmocrystals.com/sitemap.xml",
+    sitemap: "https://cosmocrystals.com/sitemap.xml",
   };
 }

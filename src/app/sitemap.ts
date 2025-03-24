@@ -2,7 +2,7 @@ import { apiClient } from "@/api/apiClient";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://www.cosmocrystals.com";
+  const baseUrl = "https://cosmocrystals.com";
 
   const staticPages = [
     "",

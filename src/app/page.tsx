@@ -7,6 +7,7 @@ import { useCategory } from "@/hooks/queries/useCategories";
 import { useProducts } from "@/hooks/queries/useProducts";
 import Hero from "@/components/home/Hero";
 import Image from "next/image";
+import { apiClient } from "@/api/apiClient";
 
 export type User = {
   id: string;
@@ -61,12 +62,54 @@ export type Review = {
 };
 
 export default function Home() {
-  const { data: categoryData, isLoading: categoryLoading } = useCategory({
-    limit: 4,
-  });
-  const { data: productData, isLoading: productLoading } = useProducts({
-    limit: 8,
-  });
+  // const { data: categoryData, isLoading: categoryLoading } = useCategory({
+  //   limit: 4,
+  // });
+  // const { data: productData, isLoading: productLoading } = useProducts({
+  //   limit: 8,
+  // });
+
+  const [categoryData, setCategoryData] = useState<Category[] | null>(null);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [productData, setProductData] = useState<Product[] | null>(null);
+  const [productLoading, setProductLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiClient.get("/category/", {
+          params: { limit: 4 },
+        });
+
+        if (response.status === 200 || response.status === 201) {
+          setCategoryData(response?.data?.categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setCategoryLoading(false);
+      }
+    };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await apiClient.get("/products/", {
+          params: { limit: 8 },
+        });
+
+        if (response.status === 200 || response.status === 201) {
+          setProductData(response?.data?.products);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setProductLoading(false);
+      }
+    };
+
+    fetchCategories();
+    fetchProducts();
+  }, []);
 
   const categorySectionRef = useRef(null);
   const productSectionRef = useRef(null);
@@ -280,37 +323,35 @@ export default function Home() {
               >
                 {categoryLoading
                   ? "Loading.."
-                  : categoryData?.categories.map(
-                      (category: Category, index: number) => (
-                        <motion.a
-                          href={`/category/${category.slug}`}
-                          key={category.id}
-                          variants={slideUp}
-                          whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                          className="bg-white rounded-2xl shadow-md overflow-hidden"
-                        >
-                          <div className="relative h-48 md:h-56 lg:h-64 bg-[#F0E6E8]">
-                            <Image
-                              src={`/assets/prod${index + 2}.png`}
-                              alt="Product Image"
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="p-6">
-                            <h3 className="text-xl font-bold text-gray-900">
-                              {category?.name}
-                            </h3>
-                            <p className="text-gray-600 mt-2">
-                              {category?.description &&
-                              category?.description?.length > 50
-                                ? category?.description.slice(0, 50) + "..."
-                                : category?.description}
-                            </p>
-                          </div>
-                        </motion.a>
-                      )
-                    )}
+                  : categoryData?.map((category: Category, index: number) => (
+                      <motion.a
+                        href={`/category/${category.slug}`}
+                        key={category.id}
+                        variants={slideUp}
+                        whileHover={{ y: -10, transition: { duration: 0.2 } }}
+                        className="bg-white rounded-2xl shadow-md overflow-hidden"
+                      >
+                        <div className="relative h-48 md:h-56 lg:h-64 bg-[#F0E6E8]">
+                          <Image
+                            src={`/assets/prod${index + 2}.png`}
+                            alt="Product Image"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="p-6">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {category?.name}
+                          </h3>
+                          <p className="text-gray-600 mt-2">
+                            {category?.description &&
+                            category?.description?.length > 50
+                              ? category?.description.slice(0, 50) + "..."
+                              : category?.description}
+                          </p>
+                        </div>
+                      </motion.a>
+                    ))}
               </motion.div>
             </div>
           </section>
@@ -337,7 +378,7 @@ export default function Home() {
               >
                 {productLoading
                   ? "Loading.."
-                  : productData?.products?.map((product: Product) => (
+                  : productData?.map((product: Product) => (
                       <motion.a
                         href={`/product/${product.id}`}
                         key={product.id}

@@ -51,13 +51,10 @@ export default function CategoryPage({
     sort: "newest",
   });
 
-  console.log(slug);
-
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
       (cat: Category) => cat.slug?.toLowerCase() === slug?.toLowerCase()
     );
-    console.log(foundCategory);
     setCategory(foundCategory || null);
 
     const filteredProducts = foundCategory
@@ -66,13 +63,11 @@ export default function CategoryPage({
         )
       : productData?.products;
 
-    console.log(filteredProducts);
     const filteredByPrice = filteredProducts?.filter(
       (product: Product) =>
         product?.salePrice >= filtersApplied?.priceRange[0] &&
         product?.salePrice <= filtersApplied?.priceRange[1]
     );
-    console.log(filteredByPrice);
 
     const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
       return filtersApplied.attributes.some((attr) => {

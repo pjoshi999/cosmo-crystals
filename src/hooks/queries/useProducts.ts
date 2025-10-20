@@ -10,7 +10,6 @@ export const useProducts = (filters: ProductFilters = {}) => {
   return useQuery({
     queryKey: productKeys.list(filters),
     queryFn: () => fetchProducts(filters),
-    
   });
 };
 

@@ -119,14 +119,11 @@ const cartSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        removeFromCartService.fulfilled,
-        (state) => {
-          // console.log("Remove from cart service successful:", action.payload);
-          state.error = null;
-          state.loading = false;
-        }
-      )
+      .addCase(removeFromCartService.fulfilled, (state) => {
+        // console.log("Remove from cart service successful:", action.payload);
+        state.error = null;
+        state.loading = false;
+      })
       .addCase(removeFromCartService.rejected, (state, action) => {
         // console.log("Remove from cart service failed:", action.payload);
         state.error = action.payload as Record<string, string[]>;

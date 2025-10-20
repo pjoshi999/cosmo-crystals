@@ -48,7 +48,7 @@ export default function CategoryPage() {
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [400, 5000],
+    priceRange: [400, 35000],
     attributes: [] as string[],
     sort: "newest",
   });
@@ -243,7 +243,7 @@ export default function CategoryPage() {
                   <input
                     type="range"
                     min="400"
-                    max="5000"
+                    max="35000"
                     value={filtersApplied.priceRange[1]}
                     onChange={(e) =>
                       setFiltersApplied({

@@ -164,7 +164,7 @@ export default function Register() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/google/signup`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/google/signup`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

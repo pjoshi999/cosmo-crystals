@@ -9,7 +9,11 @@ import { signupService } from "@/lib/features/authSlice";
 import { PendingCartAction } from "@/types";
 import { addToCartService } from "@/lib/features/cartSlice";
 import { toast } from "sonner";
-import { GoogleLogin, GoogleOAuthProvider, type CredentialResponse } from "@react-oauth/google";
+import {
+  GoogleLogin,
+  GoogleOAuthProvider,
+  type CredentialResponse,
+} from "@react-oauth/google";
 import Cookies from "js-cookie";
 
 export default function Register() {
@@ -266,6 +270,7 @@ export default function Register() {
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
+                    text="signup_with"
                   />
                 </div>
 

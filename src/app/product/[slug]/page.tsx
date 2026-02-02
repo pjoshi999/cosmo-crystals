@@ -11,6 +11,7 @@ import { AuthModal } from "@/components/ui/AuthModal";
 import { addToCartService } from "@/lib/features/cartSlice";
 import { useAppStore } from "@/hooks/hooks";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 interface ProductImage {
   id: string;
@@ -72,6 +73,7 @@ export default function ProductDetail({
 
     if (addToCartService.fulfilled.match(resultAction)) {
       toast.success("Product added to cart successfully!");
+      redirect("/cart");
     }
   };
 

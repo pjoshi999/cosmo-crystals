@@ -1,6 +1,6 @@
 "use client";
 
-import { CartItem } from "@/app/cart/page";
+import { CartItemResponse } from "@/types";
 import React from "react";
 
 interface AddressType {
@@ -17,7 +17,7 @@ interface AddressType {
 
 interface WhatsAppRedirectProps {
   phoneNumber: string; // Your WhatsApp business number with country code
-  products: CartItem[];
+  products: CartItemResponse[];
   address?: AddressType;
   additionalNotes?: string;
   children: React.ReactNode;
@@ -37,14 +37,14 @@ const WhatsAppRedirect: React.FC<WhatsAppRedirectProps> = ({
         (product) =>
           `• ${product?.product?.name} (x${product?.quantity}) - ₹${(
             product?.product?.salePrice * product?.quantity
-          )?.toFixed(2)}`
+          )?.toFixed(2)}`,
       )
       .join("\n");
 
     // Calculate total price
     const totalPrice = products?.reduce(
       (sum, product) => sum + product?.product?.salePrice * product?.quantity,
-      0
+      0,
     );
 
     // Format address information more concisely
@@ -63,7 +63,7 @@ const WhatsAppRedirect: React.FC<WhatsAppRedirectProps> = ({
 
     // Combine all information in a more compact format
     const message = `*New Order*\n\n${productsText}\n\n*Total: ₹${totalPrice.toFixed(
-      2
+      2,
     )}*${addressText}${notesText}`;
 
     // Encode the message for the URL

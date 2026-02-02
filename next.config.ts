@@ -63,6 +63,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  compiler: {
+    removeConsole: true,
+  },
 };
 
 export default nextConfig;

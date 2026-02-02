@@ -1,14 +1,14 @@
 import { cartKeys } from "@/api/endpoints/cart";
 import { queryClient } from "@/app/QueryProvider";
 import cartService from "@/services/cartService";
-import { CartItemPayload } from "@/types";
+import { AddToCartPayload, CartItemPayload } from "@/types";
 import { ApiError } from "@/types/error";
 import { handleApiError } from "@/utils/apiHelpers";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const addToCartService = createAsyncThunk(
   "cart/addToCart",
-  async (data: CartItemPayload, thunkAPI) => {
+  async (data: AddToCartPayload, thunkAPI) => {
     try {
       const response = await cartService.addToCart(data);
       if (response && response.data) {
@@ -22,7 +22,7 @@ export const addToCartService = createAsyncThunk(
 
       return thunkAPI.rejectWithValue(errorDetails);
     }
-  }
+  },
 );
 
 export const updateCartService = createAsyncThunk(
@@ -41,7 +41,7 @@ export const updateCartService = createAsyncThunk(
 
       return thunkAPI.rejectWithValue(errorDetails);
     }
-  }
+  },
 );
 
 export const removeFromCartService = createAsyncThunk(
@@ -60,7 +60,7 @@ export const removeFromCartService = createAsyncThunk(
 
       return thunkAPI.rejectWithValue(errorDetails);
     }
-  }
+  },
 );
 
 interface CartState {

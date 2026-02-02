@@ -1,32 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/queries/useCart";
-import { Product } from "@/types";
+
+import { CartItemResponse } from "@/types";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCountries } from "@/hooks/queries/useCountries";
 import WhatsAppRedirect from "@/components/home/WhatsappRedirect";
 import Image from "next/image";
-
-interface CartItem {
-  id: number;
-  name: string;
-  product: Product;
-  quantity: number;
-  image: string;
-}
-
-interface Address {
-  firstName: string;
-  lastName: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  phone: string;
-}
+import { useOrderMutation } from "@/hooks/mutations/useOrder";
+import { Address } from "@/types";
 
 interface ValidationErrors {
   firstName?: string;
@@ -37,6 +21,7 @@ interface ValidationErrors {
   postalCode?: string;
   country?: string;
   phone?: string;
+  email?: string;
 }
 
 interface Country {
@@ -54,6 +39,8 @@ interface State {
 export default function Checkout() {
   const { data, isLoading } = useCart();
   const { data: countryData, isLoading: countryLoading } = useCountries();
+  const { placeOrderMutation } = useOrderMutation();
+  const router = useRouter();
 
   const fadeIn = {
     hidden: { opacity: 0 },
@@ -86,6 +73,7 @@ export default function Checkout() {
     postalCode: "",
     country: "India",
     phone: "",
+    email: "",
   });
 
   const [step, setStep] = useState(1); // 1: Info, 2: Shipping, 3: Payment, 4: Review
@@ -101,7 +89,7 @@ export default function Checkout() {
   const subtotal = data?.reduce(
     (sum: number, item: CartItem) =>
       sum + item?.product?.salePrice * item?.quantity,
-    0
+    0,
   );
   const shipping = subtotal > 100 ? 0 : 99;
   const total = subtotal + shipping;
@@ -116,7 +104,7 @@ export default function Checkout() {
 
       // Sort countries alphabetically by name
       formattedCountries.sort((a: Country, b: Country) =>
-        a.name.localeCompare(b.name)
+        a.name.localeCompare(b.name),
       );
 
       setCountries(formattedCountries);
@@ -144,7 +132,7 @@ export default function Checkout() {
       try {
         // Find the selected country object
         const selectedCountry = countryData?.data?.find(
-          (c: Country) => c.name === address.country
+          (c: Country) => c.name === address.country,
         );
 
         if (!selectedCountry) {
@@ -158,7 +146,7 @@ export default function Checkout() {
             (state: { name: string; state_code: string }) => ({
               name: state.name,
               code: state.state_code,
-            })
+            }),
           ) || [];
 
         // Sort states alphabetically by name
@@ -234,13 +222,19 @@ export default function Checkout() {
       newErrors.phone = "Please enter a valid phone number";
     }
 
+    if (!address.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Handle form changes
   const handleAddressChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -315,9 +309,25 @@ export default function Checkout() {
     } else {
       // Final submission
       setSubmitting(true);
-      // Simulate API call for placing the order
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setSubmitting(false);
+
+      const payload = {
+        userDetails: address,
+        products: data || [], // Ensure products is not undefined
+        shippingAddress: address,
+        totalAmount: total,
+      };
+
+      try {
+        await placeOrderMutation.mutateAsync(payload);
+        // Success handling is done in the mutation hook (clearing cart etc)
+        // We just need to redirect
+        router.push("/category");
+      } catch (error) {
+        console.error("Failed to place order:", error);
+        // Optionally handle error state here
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -777,6 +787,32 @@ export default function Checkout() {
                         )}
                       </div>
                     </motion.div>
+
+                    <motion.div variants={slideUp}>
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Email <span className="text-[#B73B45]">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={address.email}
+                        onChange={handleAddressChange}
+                        placeholder="e.g. john@example.com"
+                        className={`w-full px-3 py-2 border ${
+                          errors.email ? "border-red-500" : "border-gray-300"
+                        } rounded-lg focus:ring-[#B73B45] focus:border-[#B73B45] focus:outline-none`}
+                      />
+                      {errors.email && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {errors.email}
+                        </p>
+                      )}
+                    </motion.div>
                   </motion.div>
                 )}
 
@@ -805,6 +841,8 @@ export default function Checkout() {
                         {address.country}
                         <br />
                         {address.phone}
+                        <br />
+                        {address.email}
                       </p>
                     </motion.div>
                   </motion.div>
@@ -872,7 +910,7 @@ export default function Checkout() {
                 ""
               ) : (
                 <div className="space-y-4 mb-4">
-                  {data?.map((item: CartItem) => (
+                  {data?.map((item: CartItemResponse) => (
                     <Link
                       href={`/product/${item?.product?.id}`}
                       key={item?.id}
@@ -883,7 +921,7 @@ export default function Checkout() {
                           src={
                             item?.product?.images
                               ?.map((img) =>
-                                img?.isMain ? img?.url : undefined
+                                img?.isMain ? img?.url : undefined,
                               )
                               .filter((url) => url !== undefined)[0] ||
                             item?.product?.images[0]?.url
@@ -904,7 +942,7 @@ export default function Checkout() {
                       <p className="text-sm font-medium text-gray-900">
                         ₹
                         {(item?.product?.salePrice * item?.quantity)?.toFixed(
-                          2
+                          2,
                         )}
                       </p>
                     </Link>

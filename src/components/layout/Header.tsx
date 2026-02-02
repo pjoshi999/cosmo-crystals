@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useCart } from "@/hooks/queries/useCart";
-import Cookies from "js-cookie";
 
 interface HeaderProps {
   options?: boolean;
@@ -13,9 +12,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ options = true }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const { data, isLoading } = useCart();
-
-  // Check if user is logged in - assuming that if cart data is available, user is logged in
-  const isLoggedIn = Cookies.get("accessToken");
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -105,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
 
         {options && (
           <div className="flex items-center space-x-4">
-            <Link
+            {/* <Link
               href="/profile"
               className="p-2 hover:text-[#B73B45] transition-colors md:block hidden"
             >
@@ -125,7 +121,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                   />
                 </svg>
               </motion.div>
-            </Link>
+            </Link> */}
 
             <Link
               href="/cart"
@@ -147,14 +143,14 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                   />
                 </svg>
 
-                {isLoggedIn && data?.length > 0 && !isLoading && (
+                {Array.isArray(data) && data.length > 0 && !isLoading && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute -top-1 -right-1 flex items-center justify-center"
                   >
                     <div className="bg-[#B73B45] text-white text-xs font-medium rounded-full h-4 w-4 min-w-4 flex items-center justify-center shadow-sm">
-                      {data?.length > 99 ? "99+" : data?.length || 0}
+                      {data.length > 99 ? "99+" : data.length}
                     </div>
                   </motion.div>
                 )}
@@ -244,7 +240,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
                   { href: "/", label: "Home" },
                   { href: "/category", label: "Category" },
                   { href: "/about", label: "About" },
-                  { href: "/profile", label: "Profile" },
+                  // { href: "/profile", label: "Profile" },
                 ].map(({ href, label }, i) => (
                   <motion.div
                     key={label}

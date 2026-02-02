@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 // import { useCategory } from "@/hooks/queries/useCategories";
@@ -8,6 +8,10 @@ import Header from "@/components/layout/Header";
 import Hero from "@/components/home/Hero";
 import Image from "next/image";
 import { apiClient } from "@/api/apiClient";
+import {
+  CategorySkeleton,
+  ProductSkeleton,
+} from "@/components/ui/CardSkeletons";
 
 export type User = {
   id: string;
@@ -110,18 +114,6 @@ export default function Home() {
     fetchCategories();
     fetchProducts();
   }, []);
-
-  const categorySectionRef = useRef(null);
-  const productSectionRef = useRef(null);
-
-  const isCategoryInView = useInView(categorySectionRef, {
-    once: true,
-    amount: 0.1,
-  });
-  const isProductInView = useInView(productSectionRef, {
-    once: true,
-    amount: 0.1,
-  });
 
   // Animation variants
   const fadeIn = {
@@ -297,18 +289,12 @@ export default function Home() {
           <Hero />
 
           {/* Featured Categories */}
-          <section
-            className="py-16 md:py-24 lg:block hidden"
-            ref={categorySectionRef}
-          >
+          <section className="py-16 md:py-24 lg:block hidden">
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                animate={
-                  isCategoryInView
-                    ? { opacity: 1, y: 0 }
-                    : { opacity: 0, y: 20 }
-                }
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
@@ -317,12 +303,15 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="hidden"
-                animate={isCategoryInView ? "visible" : "hidden"}
+                initial="visible"
+                whileInView="visible"
+                viewport={{ once: true }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
               >
                 {categoryLoading
-                  ? "Loading.."
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <CategorySkeleton key={i} />
+                    ))
                   : categoryData?.map((category: Category, index: number) => (
                       <motion.a
                         href={`/category/${category.slug}`}
@@ -357,13 +346,12 @@ export default function Home() {
           </section>
 
           {/* Featured Products */}
-          <section ref={productSectionRef} className="pb-16 py-0 md:py-24">
+          <section className="pb-16 py-0 md:py-24">
             <div className="max-w-7xl mx-auto px-6">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                animate={
-                  isProductInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
-                }
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
                 className="text-3xl font-bold text-gray-900 mb-10"
               >
@@ -372,12 +360,15 @@ export default function Home() {
 
               <motion.div
                 variants={staggeredContainer}
-                initial="hidden"
-                animate={isProductInView ? "visible" : "hidden"}
+                initial="visible"
+                whileInView="visible"
+                viewport={{ once: true }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
               >
                 {productLoading
-                  ? "Loading.."
+                  ? Array.from({ length: 8 }).map((_, i) => (
+                      <ProductSkeleton key={i} />
+                    ))
                   : productData?.map((product: Product) => (
                       <motion.a
                         href={`/product/${product.id}`}
@@ -391,7 +382,7 @@ export default function Home() {
                             src={
                               product?.images
                                 .map((img) =>
-                                  img?.isMain ? img?.url : undefined
+                                  img?.isMain ? img?.url : undefined,
                                 )
                                 .filter((url) => url !== undefined)[0] ||
                               product?.images[0]?.url

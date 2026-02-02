@@ -1,12 +1,11 @@
-import { apiClient } from "../apiClient";
-
 export const cartKeys = {
   all: ["cart"] as const,
   lists: () => [...cartKeys.all, "list"] as const,
 };
 
-export const fetchCartItems = async () => {
-  const { data } = await apiClient.get("/cart/");
+import { getCart } from "@/services/cartStore";
 
-  return data;
+export const fetchCartItems = async () => {
+  const cart = getCart();
+  return Promise.resolve(cart);
 };

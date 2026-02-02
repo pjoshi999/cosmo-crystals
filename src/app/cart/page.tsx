@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Minus, ArrowRight, Trash2, ShoppingCart } from "lucide-react";
@@ -12,7 +12,6 @@ import {
 import { toast } from "sonner";
 import { useAppStore } from "@/hooks/hooks";
 import Image from "next/image";
-import debounce from "@/utils/debounce";
 
 // Define cart item types
 export interface CartItem {
@@ -65,42 +64,38 @@ export default function Cart() {
   const subtotal = cartItems?.reduce(
     (sum: number, item: CartItem) =>
       sum + item?.product?.salePrice * item?.quantity,
-    0
+    0,
   );
   const shipping = subtotal > 100 ? 0 : 99;
   const total = subtotal + shipping;
 
   // Update quantity function
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    setCartItems(
-      cartItems.map((item) =>
-        item.productId === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-    debouncedUpdateAPI(id, newQuantity);
+  const updateQuantity = (id: string, delta: number) => {
+    setCartItems((prev) => {
+      const updated = prev.map((item) => {
+        if (item.productId === id) {
+          const newQty = Math.max(1, item.quantity + delta);
+          // Dispatch immediately instead of debouncing to ensure localStorage is updated
+          store.dispatch(
+            updateCartService({
+              productId: id,
+              quantity: newQty,
+            }),
+          );
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      });
+      return updated;
+    });
   };
-
-  const debouncedUpdateAPI = useMemo(
-    () =>
-      debounce((productId: string, newQuantity: number) => {
-        store.dispatch(
-          updateCartService({
-            productId: productId,
-            quantity: newQuantity,
-          })
-        );
-      }, 1000),
-    [store]
-  );
 
   // Remove item function
   const removeItem = async (id: string) => {
     const resultAction = await store.dispatch(
       removeFromCartService({
         productId: id,
-      })
+      }),
     );
 
     if (removeFromCartService.fulfilled.match(resultAction)) {
@@ -129,7 +124,7 @@ export default function Cart() {
 
         {data?.length === 0 ? (
           <motion.div
-            initial="hidden"
+            initial="visible"
             animate={isLoaded ? "visible" : "hidden"}
             variants={fadeIn}
             className="bg-white rounded-2xl shadow-md p-6 sm:p-10 text-center"
@@ -154,7 +149,7 @@ export default function Cart() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {/* Cart Items */}
             <motion.div
-              initial="hidden"
+              initial="visible"
               animate={isLoaded ? "visible" : "hidden"}
               variants={staggeredContainer}
               className="md:col-span-2"
@@ -186,13 +181,13 @@ export default function Cart() {
                         <div className="flex items-start gap-4">
                           <Link
                             href={`/product/${item?.product?.id}`}
-                            className="w-24 h-24 sm:w-40 sm:h-40 bg-[#F0E6E8] rounded-lg flex-shrink-0 relative overflow-hidden"
+                            className="w-24 h-24 sm:w-40 sm:h-40 bg-[#F0E6E8] rounded-lg shrink-0 relative overflow-hidden"
                           >
                             <Image
                               src={
                                 item?.product?.images
                                   .map((img) =>
-                                    img.isMain ? img.url : undefined
+                                    img.isMain ? img.url : undefined,
                                   )
                                   .filter((url) => url !== undefined)[0] ||
                                 item?.product?.images[0]?.url
@@ -204,7 +199,7 @@ export default function Cart() {
                           </Link>
 
                           {/* Product details */}
-                          <div className="flex-grow">
+                          <div className="grow">
                             <div className="flex justify-between">
                               <Link
                                 href={`/product/${item?.product?.id}`}
@@ -244,7 +239,7 @@ export default function Cart() {
                                         (1 -
                                           item.product.salePrice /
                                             item.product.price) *
-                                          100
+                                          100,
                                       )}
                                       % off
                                     </span>
@@ -260,10 +255,7 @@ export default function Cart() {
                                   whileTap={{ scale: 0.9 }}
                                   disabled={item.quantity <= 1}
                                   onClick={() =>
-                                    updateQuantity(
-                                      item.productId,
-                                      item.quantity - 1
-                                    )
+                                    updateQuantity(item.productId, -1)
                                   }
                                   className={`w-8 h-8 flex items-center justify-center rounded-full ${
                                     item.quantity <= 1
@@ -282,10 +274,7 @@ export default function Cart() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() =>
-                                    updateQuantity(
-                                      item?.productId,
-                                      item?.quantity + 1
-                                    )
+                                    updateQuantity(item?.productId, 1)
                                   }
                                   className="w-8 h-8 flex items-center justify-center rounded-full"
                                 >

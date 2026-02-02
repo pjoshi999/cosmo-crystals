@@ -8,6 +8,10 @@ import { useCategory } from "@/hooks/queries/useCategories";
 import { useProducts } from "@/hooks/queries/useProducts";
 import { Category, SubCategory } from "@/types";
 import Image from "next/image";
+import {
+  FilterSkeleton,
+  ProductSkeleton,
+} from "../../components/ui/CardSkeletons";
 
 interface Product {
   id: string;
@@ -48,27 +52,27 @@ export default function CategoryPage() {
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [400, 35000],
+    priceRange: [0, 1000000], // Increased range and set min to 0
     attributes: [] as string[],
     sort: "newest",
   });
 
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
-      (cat: Category) => cat.slug === ""
+      (cat: Category) => cat.slug === "",
     );
     setCategory(foundCategory || null);
 
     const filteredProducts = foundCategory
       ? productData?.products.filter(
-          (product: Product) => product?.categoryId === foundCategory?.id
+          (product: Product) => product?.categoryId === foundCategory?.id,
         )
       : productData?.products;
 
     const filteredByPrice = filteredProducts?.filter(
       (product: Product) =>
         product.salePrice >= filtersApplied.priceRange[0] &&
-        product.salePrice <= filtersApplied.priceRange[1]
+        product.salePrice <= filtersApplied.priceRange[1],
     );
 
     const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
@@ -113,13 +117,13 @@ export default function CategoryPage() {
     }
   };
 
-  if (categoryLoading || productLoading) {
-    return (
-      <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
-        <Image src="/assets/logo4.png" alt="" width={150} height={150} />
-      </div>
-    );
-  }
+  // if (categoryLoading || productLoading) {
+  //   return (
+  //     <div className="min-h-[80vh] bg-[#F7F3F4] flex items-center justify-center">
+  //       <Image src="/assets/logo4.png" alt="" width={150} height={150} />
+  //     </div>
+  //   );
+  // }
 
   return (
     <Suspense fallback="">
@@ -236,69 +240,75 @@ export default function CategoryPage() {
                 </button>
               </div>
 
-              {/* Price Range */}
-              <div className="mb-6">
-                <h3 className="text-md font-medium mb-3">Price Range</h3>
-                <div className="px-2">
-                  <input
-                    type="range"
-                    min="400"
-                    max="35000"
-                    value={filtersApplied.priceRange[1]}
-                    onChange={(e) =>
-                      setFiltersApplied({
-                        ...filtersApplied,
-                        priceRange: [
-                          filtersApplied.priceRange[0],
-                          parseInt(e.target.value),
-                        ],
-                      })
-                    }
-                    className="w-full accent-[#B73B45]"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-2">
-                    <span>₹{filtersApplied.priceRange[0]}</span>
-                    <span>₹{filtersApplied.priceRange[1]}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Crystal Types */}
-              <div className="mb-6">
-                {categoryData?.categories?.map(
-                  (category: Category, index: number) => (
-                    <div
-                      className={`${index !== 0 && "pt-5"}`}
-                      key={category?.id}
-                    >
-                      <h3 className="text-md font-medium mb-3 capitalize">
-                        {category?.name?.replaceAll("-", " ")}
-                      </h3>
-                      <div className="space-y-2">
-                        {category?.subCategory.map((sub: SubCategory) => (
-                          <div key={sub?.id} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={`type-${sub?.name}`}
-                              className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
-                              checked={filtersApplied.attributes.includes(
-                                sub?.name
-                              )}
-                              onChange={() => handleCheckHandler(sub?.name)}
-                            />
-                            <label
-                              htmlFor={`type-${sub?.name}`}
-                              className="ml-2 text-sm text-gray-600 capitalize"
-                            >
-                              {sub?.name?.replaceAll("-", " ")}
-                            </label>
-                          </div>
-                        ))}
+              {categoryLoading ? (
+                <FilterSkeleton />
+              ) : (
+                <>
+                  {/* Price Range */}
+                  <div className="mb-6">
+                    <h3 className="text-md font-medium mb-3">Price Range</h3>
+                    <div className="px-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100000"
+                        value={filtersApplied.priceRange[1]}
+                        onChange={(e) =>
+                          setFiltersApplied({
+                            ...filtersApplied,
+                            priceRange: [
+                              filtersApplied.priceRange[0],
+                              parseInt(e.target.value),
+                            ],
+                          })
+                        }
+                        className="w-full accent-[#B73B45]"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-2">
+                        <span>₹{filtersApplied.priceRange[0]}</span>
+                        <span>₹{filtersApplied.priceRange[1]}</span>
                       </div>
                     </div>
-                  )
-                )}
-              </div>
+                  </div>
+
+                  {/* Crystal Types */}
+                  <div className="mb-6">
+                    {categoryData?.categories?.map(
+                      (category: Category, index: number) => (
+                        <div
+                          className={`${index !== 0 && "pt-5"}`}
+                          key={category?.id}
+                        >
+                          <h3 className="text-md font-medium mb-3 capitalize">
+                            {category?.name?.replaceAll("-", " ")}
+                          </h3>
+                          <div className="space-y-2">
+                            {category?.subCategory.map((sub: SubCategory) => (
+                              <div key={sub?.id} className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  id={`type-${sub?.name}`}
+                                  className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
+                                  checked={filtersApplied.attributes.includes(
+                                    sub?.name,
+                                  )}
+                                  onChange={() => handleCheckHandler(sub?.name)}
+                                />
+                                <label
+                                  htmlFor={`type-${sub?.name}`}
+                                  className="ml-2 text-sm text-gray-600 capitalize"
+                                >
+                                  {sub?.name?.replaceAll("-", " ")}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </>
+              )}
             </motion.div>
 
             {/* Product Grid */}
@@ -316,29 +326,12 @@ export default function CategoryPage() {
                 </p>
               </motion.div>
 
-              {/* Loading State */}
               {productLoading ? (
-                <motion.div
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
-                  variants={staggerContainer}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {[1, 2, 3, 4, 5, 6].map((placeholder) => (
-                    <motion.div
-                      key={placeholder}
-                      variants={itemFadeIn}
-                      className="bg-white rounded-xl shadow-md overflow-hidden"
-                    >
-                      <div className="h-48 md:h-56 lg:h-64 bg-gray-200 animate-pulse" />
-                      <div className="p-4">
-                        <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-3/4" />
-                        <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-                        <div className="h-6 bg-gray-200 rounded animate-pulse mt-4 w-1/3" />
-                      </div>
-                    </motion.div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <ProductSkeleton key={i} />
                   ))}
-                </motion.div>
+                </div>
               ) : (
                 <>
                   {/* Empty State */}
@@ -367,7 +360,7 @@ export default function CategoryPage() {
                     <motion.div
                       className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4"
                       variants={staggerContainer}
-                      initial="hidden"
+                      initial="visible"
                       animate="visible"
                     >
                       {products &&
@@ -392,10 +385,10 @@ export default function CategoryPage() {
                                       src={
                                         product.images
                                           .map((img) =>
-                                            img.isMain ? img.url : undefined
+                                            img.isMain ? img.url : undefined,
                                           )
                                           .filter(
-                                            (url) => url !== undefined
+                                            (url) => url !== undefined,
                                           )[0] || product.images[0].url
                                       }
                                       alt="Product Image"
@@ -417,7 +410,7 @@ export default function CategoryPage() {
                                 <p className="text-sm text-gray-500 mt-1">
                                   {
                                     product?.attributes.find(
-                                      (attr) => attr?.name === "Crystal Type"
+                                      (attr) => attr?.name === "Crystal Type",
                                     )?.value
                                   }
                                 </p>

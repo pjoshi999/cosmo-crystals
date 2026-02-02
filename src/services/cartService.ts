@@ -1,17 +1,24 @@
-import { CartItemPayload } from "@/types";
-import { apiClient } from "../api/apiClient";
+import { AddToCartPayload, CartItemPayload } from "@/types";
+import cartStore from "./cartStore";
 
-const addToCart = async (data: CartItemPayload) =>
-  apiClient.post("/cart", data);
+// Modified to accept AddToCartPayload which includes the Product object
+const addToCart = async (data: AddToCartPayload) => {
+  return { data: cartStore.addToCart(data.product, data.quantity) };
+};
 
-const updateCart = async (data: CartItemPayload) =>
-  apiClient.patch("/cart", data);
+// Modified to use cartStore
+const updateCart = async (data: CartItemPayload) => {
+  return { data: cartStore.updateQuantity(data.productId, data.quantity) };
+};
 
-const removeFromCart = async (data: { productId: string }) =>
-  apiClient.delete(`/cart/${data.productId}`);
+const removeFromCart = async (data: { productId: string }) => {
+  return { data: cartStore.removeFromCart(data.productId) };
+};
 
-export default {
+const cartService = {
   addToCart,
   updateCart,
   removeFromCart,
 };
+
+export default cartService;

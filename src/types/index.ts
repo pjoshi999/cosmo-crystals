@@ -79,8 +79,33 @@ export interface CartItemPayload {
   quantity: number;
 }
 
+export interface AddToCartPayload {
+  product: Product;
+  quantity: number;
+}
+
 export interface PendingCartAction {
   productName: string;
   productId: string;
   quantity: number;
+}
+
+export interface Address {
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  email: string;
+  phone: string;
+}
+
+export interface OrderPayload {
+  userDetails: Address;
+  products: CartItemResponse[];
+  shippingAddress: Address;
+  totalAmount: number;
 }

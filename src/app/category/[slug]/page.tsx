@@ -46,27 +46,27 @@ export default function CategoryPage({
   // const [isLoading, setIsLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [filtersApplied, setFiltersApplied] = useState({
-    priceRange: [400, 35000],
+    priceRange: [0, 1000000], // Increased range and set min to 0
     attributes: [] as string[],
     sort: "newest",
   });
 
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
-      (cat: Category) => cat.slug?.toLowerCase() === slug?.toLowerCase()
+      (cat: Category) => cat.slug?.toLowerCase() === slug?.toLowerCase(),
     );
     setCategory(foundCategory || null);
 
     const filteredProducts = foundCategory
       ? productData?.products.filter(
-          (product: Product) => product?.categoryId === foundCategory?.id
+          (product: Product) => product?.categoryId === foundCategory?.id,
         )
       : productData?.products;
 
     const filteredByPrice = filteredProducts?.filter(
       (product: Product) =>
         product?.salePrice >= filtersApplied?.priceRange[0] &&
-        product?.salePrice <= filtersApplied?.priceRange[1]
+        product?.salePrice <= filtersApplied?.priceRange[1],
     );
 
     const filteredByAttributes = filteredByPrice?.filter((product: Product) => {
@@ -240,8 +240,8 @@ export default function CategoryPage({
                 <div className="px-2">
                   <input
                     type="range"
-                    min="00"
-                    max="35000"
+                    min="0"
+                    max="100000"
                     value={filtersApplied.priceRange[1]}
                     onChange={(e) =>
                       setFiltersApplied({
@@ -281,7 +281,7 @@ export default function CategoryPage({
                                 id={`type-${sub?.name}`}
                                 className="h-4 w-4 rounded border-gray-300 text-[#B73B45] focus:ring-[#B73B45]"
                                 checked={filtersApplied.attributes.includes(
-                                  sub?.name
+                                  sub?.name,
                                 )}
                                 onChange={() => handleCheckHandler(sub?.name)}
                               />
@@ -295,7 +295,7 @@ export default function CategoryPage({
                           ))}
                         </div>
                       </div>
-                    )
+                    ),
                 )}
               </div>
             </motion.div>
@@ -383,7 +383,7 @@ export default function CategoryPage({
                     <motion.div
                       className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
                       variants={staggerContainer}
-                      initial="hidden"
+                      initial="visible"
                       animate="visible"
                     >
                       {products &&
@@ -408,10 +408,10 @@ export default function CategoryPage({
                                       src={
                                         product.images
                                           .map((img) =>
-                                            img.isMain ? img.url : undefined
+                                            img.isMain ? img.url : undefined,
                                           )
                                           .filter(
-                                            (url) => url !== undefined
+                                            (url) => url !== undefined,
                                           )[0] || product.images[0].url
                                       }
                                       alt="Product Image"
@@ -433,7 +433,7 @@ export default function CategoryPage({
                                 <p className="text-sm text-gray-500 mt-1">
                                   {
                                     product?.attributes.find(
-                                      (attr) => attr?.name === "Crystal Type"
+                                      (attr) => attr?.name === "Crystal Type",
                                     )?.value
                                   }
                                 </p>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCategory } from "@/hooks/queries/useCategories";
 import { Category } from "@/types";
 import Link from "next/link";
+import { MinimalCategorySkeleton } from "@/components/ui/CardSkeletons";
 
 const featuredCards = [
   {
@@ -131,7 +132,9 @@ export default function Hero() {
                 </motion.h2>
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-5">
                   {categoryLoading
-                    ? ""
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <MinimalCategorySkeleton key={i} />
+                      ))
                     : categoryData?.categories?.map(
                         (category: Category, index: number) => (
                           <motion.a
@@ -162,7 +165,7 @@ export default function Hero() {
                         {category.label}
                       </span> */}
                           </motion.a>
-                        )
+                        ),
                       )}
                 </div>
               </section>

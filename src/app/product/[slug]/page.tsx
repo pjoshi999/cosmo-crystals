@@ -62,19 +62,16 @@ export default function ProductDetail({
   }, [isLoggedIn]);
 
   const handleAddToCart = async () => {
-    if (!isLoggedIn) {
-      setShowAuthModal(true);
-    } else {
-      const resultAction = await store.dispatch(
-        addToCartService({
-          productId: product?.id,
-          quantity: quantity,
-        })
-      );
+    // Auth check removed for guest checkout
+    const resultAction = await store.dispatch(
+      addToCartService({
+        product: product,
+        quantity: quantity,
+      }),
+    );
 
-      if (addToCartService.fulfilled.match(resultAction)) {
-        toast.success("Product added to cart successfully!");
-      }
+    if (addToCartService.fulfilled.match(resultAction)) {
+      toast.success("Product added to cart successfully!");
     }
   };
 
@@ -103,7 +100,7 @@ export default function ProductDetail({
           name="description"
           content={`${product?.name} - ${product?.description?.substring(
             0,
-            150
+            150,
           )}...`}
         />
       </Head>

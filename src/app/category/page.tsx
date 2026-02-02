@@ -57,6 +57,19 @@ export default function CategoryPage() {
     sort: "newest",
   });
 
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     const foundCategory = categoryData?.categories.find(
       (cat: Category) => cat.slug === "",
@@ -225,8 +238,8 @@ export default function CategoryPage() {
             `}
               initial={{ x: -100, opacity: 0 }}
               animate={{
-                x: filterOpen || window.innerWidth >= 1024 ? 0 : -100,
-                opacity: filterOpen || window.innerWidth >= 1024 ? 1 : 0,
+                x: filterOpen || isLargeScreen ? 0 : -100,
+                opacity: filterOpen || isLargeScreen ? 1 : 0,
               }}
               transition={{ duration: 0.3 }}
             >

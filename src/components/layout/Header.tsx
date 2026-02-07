@@ -96,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ options = true }) => {
         {options && (
           <div className="flex items-center space-x-4">
             {/* Desktop Google Translate - hidden on mobile */}
-            <div className="hidden md:flex">
+            <div className="flex">
               <GoogleTranslate id="google_translate_element_header" />
             </div>
 
